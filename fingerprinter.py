@@ -6,6 +6,7 @@ __author__ = 'james'
 import wave, os
 import numpy as np
 import hashlib
+import time
 
 from scipy.ndimage.morphology import generate_binary_structure, iterate_structure, binary_erosion
 from scipy.ndimage.filters import maximum_filter
@@ -172,3 +173,66 @@ class Fingerprinter(object):
                     #add to to fpr set
                     fingerprinted.add((i, i+j))
         return hashes
+
+    def insert_to_db(self, key, value):
+        """
+            insert hashes to db
+        """
+        pass
+
+    def match(self, samples):
+        """
+            matching uknown songs with known ones
+        """
+        hashes = self.process_channel(samples)
+        matches = self.db.return_matches(hashes)
+        pass
+
+    def align_matches(self, matches, starttime, record_seconds=0, verbose=False):
+        """
+            Find hash matches that align in time with the other matches & stats
+            abt which hashes a true positives
+            return a dict with the matching info
+        """
+
+        #align by diffs
+        diff_counter = {}
+        largest = 0
+        largest_count = 0
+        song_id = -1
+        for tup in matches:
+            sid, diff = tup;
+            if not diff in diff_counter:
+                diff_counter[diff] = {}
+            if not sid in diff_counter[diff]:
+                diff_counter[diff][sid] = 0
+            diff_counter[diff][sid] += 1
+
+            if diff_counter[diff][sid] > largest_count:
+                largest = diff
+                largest_count = diff_counter[diff][sid]
+                song_id = sid
+
+        if verbose: print "Diff is %d with %d offset-aligned matches" % (largest, largest_count)
+
+        #get song details
+        songname = self.db.get_song_by_id(song_id)[SQLDatabase.FIELD_SONGNAME]
+        songname = songname.replace("_", " ")
+        elapsed = time.time() - starttime
+
+        if verbose:
+            print "Song is %s, song ID = %d. Recognized in %f seconds" % (songname, song_id, elapsed)
+
+        #return match info
+        song = {
+            "song_id": song_id,
+            "song_name": songname,
+            "match_time": elapsed,
+            "confidence": largest_count
+        }
+
+        if record_seconds:
+            song['record_time'] = record_seconds
+
+        return song
+

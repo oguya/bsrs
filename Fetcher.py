@@ -19,6 +19,7 @@ class Fetcher():
     BIRD_SOUNDS_DIR = '/home/james/python-include/BSRS/'
     CONFIG_FILE = 'bsrs.cfg'
     BASE_API_URL = 'http://www.xeno-canto.org/api/recordings.php'
+    BASE_GAPI_URL = 'https://ajax.googleapis.com/ajax/services/search/images'
 
     Logging = Logging()
     ErrorCodes = BaseHTTPRequestHandler.responses

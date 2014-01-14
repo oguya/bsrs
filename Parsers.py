@@ -5,7 +5,7 @@ from Logging import Logging
 from time import time
 import json
 import thread
-import threading
+import urllib
 
 class Parsers():
     """
@@ -96,3 +96,13 @@ class Parsers():
         t_delta = time() - t_start
         info_log = "Finished parsing URL: %s Time: %d" % (url, t_delta)
         self.logger.write_log(log_file='parsers', log_tag='i', log_msg=info_log)
+
+    def parse_GAPI(self, birdName):
+        """
+            download & parse json file containing bird images from
+            google url
+        """
+        query = urllib.urlencode({'q': birdName})
+        url = self.fetcher.BASE_API_URL+'?v=1.0&'+query
+        json_data = json.load(self.get_json_data(url=url))
+

@@ -2,6 +2,7 @@ __author__ = 'james'
 
 import os
 import time
+import Config
 
 class Logging():
     """
@@ -12,7 +13,8 @@ class Logging():
     LOG_FILE = {'fingerprint': DEFAULT_LOG_DIR+'fingerprint_logs.txt',
                 'search': DEFAULT_LOG_DIR+'search_logs.txt',
                 'fetcher': DEFAULT_LOG_DIR+'fetcher_logs.txt',
-                'parsers': DEFAULT_LOG_DIR+'parsers_logs.txt'}
+                'parsers': DEFAULT_LOG_DIR+'parsers_logs.txt',
+                'databases': DEFAULT_LOG_DIR+'database_logs.txt'}
 
     LOG_TAG = {'e': 'ERROR', 'i': 'INFO', 'w': 'WARN', 'f': 'FATAL'}
     OVERWRITE = False
@@ -23,6 +25,11 @@ class Logging():
 
         self.log_dir = log_dir
         self.overwrite = overwrite
+
+        #load configs
+        #config = Config.Configs()
+        #self.config = config.config
+        #use_proxy = self.config.getboolean('Proxies', 'use_http_proxy')
 
         self.check_dirs()
 
