@@ -1,7 +1,7 @@
 __author__ = 'james'
 
 import ConfigParser
-import Logging
+from Logging import Logging
 
 
 class Configs:

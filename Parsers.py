@@ -2,6 +2,7 @@ __author__ = 'james'
 
 from Fetcher import Fetcher
 from Logging import Logging
+from databases import MySQLDatabases
 from time import time
 import json
 import thread
@@ -21,6 +22,8 @@ class Parsers():
             page_counter++
 
     """
+
+    MAX_IMAGES_URL = 4
 
     def __init__(self):
         self.fetcher = Fetcher()
@@ -97,7 +100,7 @@ class Parsers():
         info_log = "Finished parsing URL: %s Time: %d" % (url, t_delta)
         self.logger.write_log(log_file='parsers', log_tag='i', log_msg=info_log)
 
-    def parse_GAPI(self, birdName):
+    def parse_GAPI(self, birdName, birdID, verbose=False):
         """
             download & parse json file containing bird images from
             google url
@@ -106,3 +109,20 @@ class Parsers():
         url = self.fetcher.BASE_API_URL+'?v=1.0&'+query
         json_data = json.load(self.get_json_data(url=url))
 
+        if verbose:
+            print "GAPI URL: %s\n BirdName: %s BirdID: %d " % (url, birdName, birdID)
+
+        response_status = json_data['responseStatus']
+
+        results = json_data['responseData']['results']
+
+        for result in results:
+            imageURL = result['unescapedUrl']
+            siteURL = result['originalContextUrl']
+
+            #TODO store results in db
+
+            if verbose:
+                logs = "imageURL: %s\n siteURL: %s" % (imageURL, siteURL)
+                self.logger.write_log(log_file='parsers', log_tag='i', log_msg=logs)
+                print logs

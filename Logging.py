@@ -9,7 +9,8 @@ class Logging():
         performs all logging tasks
     """
 
-    DEFAULT_LOG_DIR = '/home/james/python-include/BSRS/logs/'
+    #DEFAULT_LOG_DIR = '/home/james/python-include/BSRS/logs/'
+    DEFAULT_LOG_DIR = 'Logs/'
     LOG_FILE = {'fingerprint': DEFAULT_LOG_DIR+'fingerprint_logs.txt',
                 'search': DEFAULT_LOG_DIR+'search_logs.txt',
                 'fetcher': DEFAULT_LOG_DIR+'fetcher_logs.txt',
