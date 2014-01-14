@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2f4c435b-877b-4d8f-b7a9-3a03d9ceb74d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config.py" afterPath="$PROJECT_DIR$/Config.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Fetcher.py" afterPath="$PROJECT_DIR$/Fetcher.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Logging.py" afterPath="$PROJECT_DIR$/Logging.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Parsers.py" afterPath="$PROJECT_DIR$/Parsers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bsrs.cfg" afterPath="$PROJECT_DIR$/bsrs.cfg" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/databases.py" afterPath="$PROJECT_DIR$/databases.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nest.py" afterPath="$PROJECT_DIR$/nest.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="audiopy.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +15,7 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/audiopy$audiopy.coverage" NAME="audiopy Coverage Results" MODIFIED="1389627431049" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/audiopy$audiopy.coverage" NAME="audiopy Coverage Results" MODIFIED="1389717136999" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -43,10 +38,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="databases.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="databases.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/databases.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="119" column="38" selection-start="4172" selection-end="4172" vertical-scroll-proportion="0.0" vertical-offset="1753" max-vertical-offset="3618">
+            <state line="6" column="42" selection-start="151" selection-end="151" vertical-scroll-proportion="0.20769231" vertical-offset="0" max-vertical-offset="3834">
               <folding>
                 <element signature="e#22#49#0" expanded="true" />
               </folding>
@@ -65,10 +60,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="nest.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="nest.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/nest.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="67" column="5" selection-start="2316" selection-end="2316" vertical-scroll-proportion="0.79737335" vertical-offset="637" max-vertical-offset="1188">
+            <state line="66" column="5" selection-start="2293" selection-end="2293" vertical-scroll-proportion="0.0" vertical-offset="637" max-vertical-offset="1188">
               <folding />
             </state>
           </provider>
@@ -97,7 +92,7 @@
       <file leaf-file-name="Parsers.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Parsers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="170" column="43" selection-start="6380" selection-end="6380" vertical-scroll-proportion="0.0" vertical-offset="2630" max-vertical-offset="3492">
+            <state line="12" column="0" selection-start="246" selection-end="246" vertical-scroll-proportion="0.0" vertical-offset="1850" max-vertical-offset="3492">
               <folding>
                 <element signature="e#22#49#0" expanded="true" />
               </folding>
@@ -139,9 +134,9 @@
         <option value="$PROJECT_DIR$/Config.py" />
         <option value="$PROJECT_DIR$/bsrs.cfg" />
         <option value="$PROJECT_DIR$/Fetcher.py" />
-        <option value="$PROJECT_DIR$/databases.py" />
-        <option value="$PROJECT_DIR$/Parsers.py" />
         <option value="$PROJECT_DIR$/nest.py" />
+        <option value="$PROJECT_DIR$/Parsers.py" />
+        <option value="$PROJECT_DIR$/databases.py" />
       </list>
     </option>
   </component>
@@ -485,12 +480,12 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32978722" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26060605" sideWeight="0.6708185" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26060605" sideWeight="0.3505338" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21666667" sideWeight="0.6708185" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3985765" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.46975088" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.6494662" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -597,15 +592,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/databases.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="38" selection-start="4172" selection-end="4172" vertical-scroll-proportion="0.0" vertical-offset="1753" max-vertical-offset="3618">
-          <folding>
-            <element signature="e#22#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="6" column="13" selection-start="85" selection-end="85" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="648">
@@ -615,19 +601,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/nest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="66" column="5" selection-start="2293" selection-end="2293" vertical-scroll-proportion="0.0" vertical-offset="637" max-vertical-offset="1188">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Parsers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="170" column="43" selection-start="6380" selection-end="6380" vertical-scroll-proportion="0.0" vertical-offset="2630" max-vertical-offset="3492">
+        <state line="12" column="0" selection-start="246" selection-end="246" vertical-scroll-proportion="0.0" vertical-offset="1850" max-vertical-offset="3492">
           <folding>
             <element signature="e#22#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/nest.py">
+    <entry file="file://$PROJECT_DIR$/databases.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="5" selection-start="2316" selection-end="2316" vertical-scroll-proportion="0.79737335" vertical-offset="637" max-vertical-offset="1188">
-          <folding />
+        <state line="6" column="42" selection-start="151" selection-end="151" vertical-scroll-proportion="0.20769231" vertical-offset="0" max-vertical-offset="3834">
+          <folding>
+            <element signature="e#22#49#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

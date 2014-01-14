@@ -4,6 +4,7 @@ from Logging import Logging
 
 import MySQLdb as mysql
 import MySQLdb.cursors as cursors
+from MySQLdb import escape_string as clean
 
 
 class MySQLDatabases:
@@ -43,7 +44,7 @@ class MySQLDatabases:
     SELECT_SONG = ""
     SELECT_NUM_FINGERPRINTS = ""
     SELECT_ALL_BIRDS = "SELECT birdID, englishName, genericName, specificName, Recorder, Location, Country, " \
-                       "lat_lng, xenoCantoURL from %s" %s (BIRDS_TBL)
+                       "lat_lng, xenoCantoURL from %s" % (BIRDS_TBL)
 
     SELECT_UNIQUE_SONG_IDS = ""
     SELECT_SONGS = ""
@@ -125,6 +126,12 @@ class MySQLDatabases:
             insert image urls to images table
         """
         sql = None
+
+        #cleaning inputs
+        birdID = mysql.escape_string(birdID)
+        imageURL= mysql.escape_string(imageURL)
+        siteURL = mysql.escape_string(siteURL)
+
         try:
             self.cursor = self.connection.cursor()
             sql = MySQLDatabases.INSERT_IMAGES % (birdID, imageURL, siteURL)
@@ -144,23 +151,28 @@ class MySQLDatabases:
         sql = None
         try:
             self.cursor = self.connection.cursor()
+
+            #clean inputs
+            mysql.escape_string(**kwargs)
             sql = MySQLDatabases.INSERT_BIRDS % (
-                kwargs.get('english_name'), kwargs.get('generic_name'), kwargs.get('specific_name'),
-            kwargs.get('recorder'), kwargs.get('location'), kwargs.get('country'), kwargs.get('lat_lng'),
-            kwargs.get('xeno_cantoURL'))
+                clean(kwargs.get('english_name')), clean(kwargs.get('generic_name')),
+                clean(kwargs.get('specific_name')), clean(kwargs.get('recorder')),
+                clean(kwargs.get('location')), clean(kwargs.get('country')),
+                clean(kwargs.get('lat_lng')), clean(kwargs.get('xeno_cantoURL')))
             self.cursor.execute(sql)
             self.connection.commit()
             return int(self.cursor.lastrowid)
         except mysql.Error, e:
             self.connection.rollback()
-            self.logging.write_log('databases', 'e', ("{insert_birds()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], sql)))
+            self.logging.write_log('databases', 'e', ("{insert_birds()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
             return None
 
     def insert_sounds(self, birdID, soundType, wavFile, soundURL):
         sql = None
         try:
             self.cursor = self.connection.cursor()
-            sql = MySQLDatabases.INSERT_SOUNDS % (birdID, soundType, wavFile, soundURL)
+            sql = MySQLDatabases.INSERT_SOUNDS % (clean(birdID), clean(soundType), clean(wavFile), clean(soundURL))
             self.cursor.execute(sql)
             self.connection.commit()
             return int(self.cursor.lastrowid)
