@@ -3,12 +3,15 @@ __author__ = 'james'
 from Fetcher import Fetcher
 from Logging import Logging
 from databases import MySQLDatabases
+from ConfigParser import ConfigParser
+
 from time import time
 import json
-import thread
 import urllib
+from Queue import *
+from threading import *
 
-class Parsers():
+class Parsers:
     """
         parse json file, store important stuff
 
@@ -24,10 +27,46 @@ class Parsers():
     """
 
     MAX_IMAGES_URL = 4
+    CONFIG_FILE = 'bsrs.cfg'
 
     def __init__(self):
         self.fetcher = Fetcher()
         self.logger = Logging()
+        self.config_file = Parsers.CONFIG_FILE
+        self.config = ConfigParser()
+
+        self.load_config_file()
+        creds = self.get_db_creds()
+        self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
+                                       password=creds['passwd'], database=creds['db_name'])
+
+        #tmp
+        self.birdID = self.birdName = None
+
+
+    def get_db_creds(self):
+        """
+            load db creds from config file
+        """
+        hostname = self.config.get('database', 'db_hostname')
+        username = self.config.get('database', 'db_username')
+        passwd = self.config.get('database', 'db_password')
+        db_name = self.config.get('database', 'db_dbname')
+        return {'hostname': hostname, 'username': username,
+                'passwd': passwd, 'db_name': db_name}
+
+    def load_config_file(self):
+        """
+            Load config file
+        """
+        try:
+            self.config.read(self.config_file)
+            info_msg = "Loaded config file %s" % self.config_file
+            self.logger.write_log('fetcher', 'i', info_msg)
+        except Exception, e:
+            info_msg = "config file %s missing" % self.config_file
+            self.logger.write_log('fetcher', 'e', info_msg)
+            raise Exception(info_msg)
 
     def get_json_data(self, url):
         """
@@ -61,7 +100,7 @@ class Parsers():
 
             for record in recordings:
                 print "xeno-canto_ID: %s" % record['id']
-                print "generic name: %s" % record['en']
+                print "generic name: %s" % record['gen']
                 print "specific name: %s" % record['sp']
                 print "english name: %s" % record['en']
                 print "country: %s" % record['cnt']
@@ -74,6 +113,14 @@ class Parsers():
                 print "\n\n"
 
                 #TODO store records in db
+                #store bird info in db
+                birdID = self.database.insert_birds(english_name=record['en'], generic_name=record['gen'],
+                                           specific_name=record['sp'], recorder=record['rec'], location=record['loc'],
+                                           country=record['cnt'], lat_lng="%s,%s" % (record['lat'], record['lng']),
+                                           xeno_cantoURL=record['url'])
+
+                self.birdID = birdID
+                self.birdName = record['en']
 
                 info_log = "xeno-canto_ID:%s " % record['id']
                 info_log += "generic name:%s " % record['en']
@@ -90,11 +137,19 @@ class Parsers():
 
                 #fetch audio file
                 #TODO use threads
-                thread.start_new_thread(self.fetcher.dl_sound_file, (record['file'], record['id']+".mp3"))
-                #self.fetcher.dl_sound_file(record['file'], record['id']+".mp3")
 
-            break
-            #page_counter += 1
+                wavFile = "%s_%s" % (str(record['en']).replace(' ', '_'), str(birdID))
+
+                status = self.fetcher.dl_sound_file(soundURL=record['file'], wavFile=wavFile)
+
+                if status:
+                    #store sound details in db
+                    self.database.insert_sounds(birdID=birdID, soundType=record['type'],
+                                                wavFile=wavFile, soundURL=record['file'])
+
+                #thread.start_new_thread(self.fetcher.dl_sound_file, (record['file'], record['id']+".mp3"))
+
+            page_counter += 1
 
         t_delta = time() - t_start
         info_log = "Finished parsing URL: %s Time: %d" % (url, t_delta)
@@ -113,6 +168,10 @@ class Parsers():
             print "GAPI URL: %s\n BirdName: %s BirdID: %d " % (url, birdName, birdID)
 
         response_status = json_data['responseStatus']
+        if int(response_status) is not 200:
+            raise Exception("response from GAPI: %s" % response_status)
+        else:
+            print "GAPI: OK %s" % response_status
 
         results = json_data['responseData']['results']
 
@@ -121,6 +180,7 @@ class Parsers():
             siteURL = result['originalContextUrl']
 
             #TODO store results in db
+            self.database.insert_images(birdID=birdID, imageURL=imageURL, siteURL=siteURL)
 
             if verbose:
                 logs = "imageURL: %s\n siteURL: %s" % (imageURL, siteURL)

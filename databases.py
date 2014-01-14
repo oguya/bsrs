@@ -1,9 +1,10 @@
 __author__ = 'james'
 
+from Logging import Logging
+
 import MySQLdb as mysql
 import MySQLdb.cursors as cursors
 
-import Logging
 
 class MySQLDatabases:
 
@@ -41,7 +42,8 @@ class MySQLDatabases:
     SELECT_ALL = ""
     SELECT_SONG = ""
     SELECT_NUM_FINGERPRINTS = ""
-    SELECT_NUM_FINGERPRINTS = ""
+    SELECT_ALL_BIRDS = "SELECT birdID, englishName, genericName, specificName, Recorder, Location, Country, " \
+                       "lat_lng, xenoCantoURL from %s" %s (BIRDS_TBL)
 
     SELECT_UNIQUE_SONG_IDS = ""
     SELECT_SONGS = ""
@@ -56,22 +58,19 @@ class MySQLDatabases:
     #list tables
     LIST_TABLES = "show tables"
 
-    #xtras
-    CONFIG_FILE = 'bsrs.cfg'
 
-    def __init__(self, hostname, username, password, database,
-                 logging=Logging, config_file=CONFIG_FILE):
+    def __init__(self, hostname, username, password, database):
 
         self.logging = Logging()
-        self.config_file = config_file
 
         #connect
-        self.database = database
         try:
-            self.connection = mysql.connect(user=username, passwd=password,
-                                            database=database, cursorsclass=cursors.DictCursor)
+            self.connection = mysql.connect(host=hostname, user=username, passwd=password,
+                                            db=database, cursorclass=cursors.DictCursor)
             self.connection.autocommit(False)
             self.cursor = self.connection.cursor()
+            self.logging.write_log('databases', 'i', "successfully connected to DB. DB Version: %s" %
+                                                     self.connection.get_server_info())
         except mysql.Error, e:
             self.logging.write_log('databases', 'e', ("Connection error %d: %s" % (e.args[0], e.args[1])))
 
@@ -104,9 +103,22 @@ class MySQLDatabases:
             self.cursor = self.connection.cursor()
             self.cursor.execute(MySQLDatabases.SELECT_NUM_FINGERPRINTS)
             record = self.cursor.fetchone()
-            return  int(record['count'])
+            return int(record['count'])
         except mysql.Error, e:
             self.logging.write_log('databases', 'e', ("{get_num_fingerprints()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_NUM_FINGERPRINTS)))
+
+    def get_all_birds(self):
+        """
+            returns cursor containing info abt all birds
+        """
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(MySQLDatabases.SELECT_ALL_BIRDS)
+            return self.cursor.fetchall()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'e', ("{get_all_birds()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
+            raise Exception(e.message)
+
 
     def insert_images(self, birdID, imageURL, siteURL):
         """
@@ -179,5 +191,5 @@ class MySQLDatabases:
         except mysql.Error, e:
             self.connection.rollback()
             self.logging.write_log('databases', 'e',
-                       ("{insert()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1],(MySQLDatabases.INSERT_FINGERPRINT, args))))
+                       ("{insert()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], (MySQLDatabases.INSERT_FINGERPRINT, args))))
 

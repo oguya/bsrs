@@ -2,7 +2,7 @@ __author__ = 'james'
 
 import os
 import time
-import Config
+
 
 class Logging():
     """

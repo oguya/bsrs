@@ -14,7 +14,7 @@ from Parsers import Parsers
 AUDIO_PATH = '/home/james/python-include/BSRS/tmp/131912.wav'
 
 
-class Nest():
+class Nest:
 
     def __init__(self):
         self.fingerprinter = Fingerprinter()
@@ -47,13 +47,23 @@ class Nest():
                 print str
                 AudioSegment.from_file(media_file).export(wav_file, format='wav')
 
-
     def fetch_stuff(self):
         self.parser.parse()
+
+    def fetch_images(self):
+        """
+        get all birds from db
+            - get birdID & birdName
+            - get image URLS from GAPI & store in DB
+        """
+        cursor = self.parser.database.get_all_birds()
+        for row in cursor:
+            self.parser.parse_GAPI(birdName=row['englishName'], birdID=row['birdID'])
 
 
 if __name__ == '__main__':
     nest = Nest()
-    nest.control_center()
-    #nest.fetch_stuff()
+    #nest.control_center()
+    nest.fetch_stuff()
+    #nest.fetch_images()
     #nest.mp3_to_wav('/home/james/python-include/BSRS/tmp/')

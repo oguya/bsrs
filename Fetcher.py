@@ -9,14 +9,15 @@ import urllib
 import sys
 import ConfigParser
 
-class Fetcher():
+class Fetcher:
     """
         download json file from xeno-canto.org
         - parse it to get bird info
         - dl bird sound
     """
 
-    BIRD_SOUNDS_DIR = '/home/james/python-include/BSRS/'
+    #BIRD_SOUNDS_DIR = '/home/james/python-include/BSRS/'
+    BIRD_SOUNDS_DIR = 'BirdSounds/'
     CONFIG_FILE = 'bsrs.cfg'
     BASE_API_URL = 'http://www.xeno-canto.org/api/recordings.php'
     BASE_GAPI_URL = 'https://ajax.googleapis.com/ajax/services/search/images'
@@ -62,18 +63,20 @@ class Fetcher():
         url = "http://www.xeno-canto.org/api/recordings.php?query=cnt:kenya"
         response = self.url_ops(url)
 
-    def dl_sound_file(self, url, file_name):
+    def dl_sound_file(self, soundURL, wavFile):
         """
             download bird sound audio for later fingerprinting
         """
-        print "URL: ", url, " dest: ", file_name
-        file_name = self.BIRD_SOUNDS_DIR + file_name
+        wavFile = self.BIRD_SOUNDS_DIR + wavFile + ".mp3"
+        print "URL: %s dest: %s" % (soundURL, wavFile)
+
         try:
-            urllib.urlretrieve(url, filename=file_name)
-            info_msg = "downloaded %s saved as: %s" % (url, file_name)
+            urllib.urlretrieve(soundURL, filename=wavFile)
+            info_msg = "downloaded %s saved as: %s" % (soundURL, wavFile)
             self.logging.write_log('fetcher', 'i', info_msg)
+            return True
         except Exception, e:
-            error_msg = "Unable to download file: %s. Stopping!" % url
+            error_msg = "Unable to download file: %s. Stopping! Execption: %s" % (soundURL, e.args)
             self.logging.write_log('fetcher', 'e', error_msg)
             raise Exception(error_msg)
 
