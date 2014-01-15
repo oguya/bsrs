@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2f4c435b-877b-4d8f-b7a9-3a03d9ceb74d" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Fetcher.py" afterPath="$PROJECT_DIR$/Fetcher.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Parsers.py" afterPath="$PROJECT_DIR$/Parsers.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/databases.py" afterPath="$PROJECT_DIR$/databases.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -32,16 +35,16 @@
       <file leaf-file-name="fingerprinter.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fingerprinter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="218" column="78" selection-start="7381" selection-end="7381" vertical-scroll-proportion="0.0" vertical-offset="3715" max-vertical-offset="4392">
+            <state line="218" column="51" selection-start="7354" selection-end="7354" vertical-scroll-proportion="0.0" vertical-offset="3710" max-vertical-offset="4392">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="databases.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="databases.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/databases.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="6" column="42" selection-start="151" selection-end="151" vertical-scroll-proportion="0.20769231" vertical-offset="0" max-vertical-offset="3834">
+            <state line="183" column="8" selection-start="6748" selection-end="6748" vertical-scroll-proportion="0.0" vertical-offset="3548" max-vertical-offset="4068">
               <folding>
                 <element signature="e#22#49#0" expanded="true" />
               </folding>
@@ -63,7 +66,7 @@
       <file leaf-file-name="nest.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/nest.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="66" column="5" selection-start="2293" selection-end="2293" vertical-scroll-proportion="0.0" vertical-offset="637" max-vertical-offset="1188">
+            <state line="61" column="0" selection-start="2214" selection-end="2214" vertical-scroll-proportion="0.0" vertical-offset="655" max-vertical-offset="1188">
               <folding />
             </state>
           </provider>
@@ -72,8 +75,10 @@
       <file leaf-file-name="Fetcher.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Fetcher.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="69" column="8" selection-start="2207" selection-end="2207" vertical-scroll-proportion="0.0" vertical-offset="1191" max-vertical-offset="2628">
-              <folding />
+            <state line="92" column="16" selection-start="3035" selection-end="3035" vertical-scroll-proportion="0.0" vertical-offset="1191" max-vertical-offset="3024">
+              <folding>
+                <element signature="e#22#49#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -89,10 +94,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Parsers.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Parsers.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Parsers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="0" selection-start="246" selection-end="246" vertical-scroll-proportion="0.0" vertical-offset="1850" max-vertical-offset="3492">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-6.2807693" vertical-offset="3266" max-vertical-offset="4446">
               <folding>
                 <element signature="e#22#49#0" expanded="true" />
               </folding>
@@ -103,7 +108,7 @@
       <file leaf-file-name="bsrs.cfg" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bsrs.cfg">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="21" selection-start="108" selection-end="108" vertical-scroll-proportion="0.0" vertical-offset="18" max-vertical-offset="576">
+            <state line="3" column="9" selection-start="86" selection-end="86" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="576">
               <folding />
             </state>
           </provider>
@@ -132,11 +137,11 @@
         <option value="$PROJECT_DIR$/MySQLDatabase.py" />
         <option value="$PROJECT_DIR$/Logging.py" />
         <option value="$PROJECT_DIR$/Config.py" />
-        <option value="$PROJECT_DIR$/bsrs.cfg" />
-        <option value="$PROJECT_DIR$/Fetcher.py" />
         <option value="$PROJECT_DIR$/nest.py" />
-        <option value="$PROJECT_DIR$/Parsers.py" />
         <option value="$PROJECT_DIR$/databases.py" />
+        <option value="$PROJECT_DIR$/Fetcher.py" />
+        <option value="$PROJECT_DIR$/bsrs.cfg" />
+        <option value="$PROJECT_DIR$/Parsers.py" />
       </list>
     </option>
   </component>
@@ -188,20 +193,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="audiopy" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="audiopy" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="audiopy" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Logs" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -475,13 +466,13 @@
     <frame x="-1" y="26" width="1368" height="717" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41992882" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32978722" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26060605" sideWeight="0.3505338" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21666667" sideWeight="0.6708185" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26060605" sideWeight="0.6708185" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21666667" sideWeight="0.3505338" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3985765" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -562,17 +553,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fingerprinter.py">
+    <entry file="file://$PROJECT_DIR$/Config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="218" column="78" selection-start="7381" selection-end="7381" vertical-scroll-proportion="0.0" vertical-offset="3715" max-vertical-offset="4392">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bsrs.cfg">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="21" selection-start="108" selection-end="108" vertical-scroll-proportion="0.0" vertical-offset="18" max-vertical-offset="576">
-          <folding />
+        <state line="6" column="13" selection-start="85" selection-end="85" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="648">
+          <folding>
+            <element signature="e#22#41#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -585,41 +571,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Fetcher.py">
+    <entry file="file://$PROJECT_DIR$/fingerprinter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="8" selection-start="2207" selection-end="2207" vertical-scroll-proportion="0.0" vertical-offset="867" max-vertical-offset="2628">
+        <state line="218" column="51" selection-start="7354" selection-end="7354" vertical-scroll-proportion="0.0" vertical-offset="3710" max-vertical-offset="4392">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="13" selection-start="85" selection-end="85" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="648">
-          <folding>
-            <element signature="e#22#41#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/nest.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="5" selection-start="2293" selection-end="2293" vertical-scroll-proportion="0.0" vertical-offset="637" max-vertical-offset="1188">
+        <state line="61" column="0" selection-start="2214" selection-end="2214" vertical-scroll-proportion="0.0" vertical-offset="655" max-vertical-offset="1188">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Parsers.py">
+    <entry file="file://$PROJECT_DIR$/databases.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="0" selection-start="246" selection-end="246" vertical-scroll-proportion="0.0" vertical-offset="1850" max-vertical-offset="3492">
+        <state line="183" column="8" selection-start="6748" selection-end="6748" vertical-scroll-proportion="0.0" vertical-offset="3121" max-vertical-offset="4068">
           <folding>
             <element signature="e#22#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/databases.py">
+    <entry file="file://$PROJECT_DIR$/bsrs.cfg">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="42" selection-start="151" selection-end="151" vertical-scroll-proportion="0.20769231" vertical-offset="0" max-vertical-offset="3834">
+        <state line="3" column="9" selection-start="86" selection-end="86" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="576">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Fetcher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="92" column="16" selection-start="3035" selection-end="3035" vertical-scroll-proportion="0.0" vertical-offset="1191" max-vertical-offset="3024">
+          <folding>
+            <element signature="e#22#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Parsers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-6.2807693" vertical-offset="3266" max-vertical-offset="4446">
           <folding>
             <element signature="e#22#49#0" expanded="true" />
           </folding>

@@ -45,6 +45,7 @@ class MySQLDatabases:
     SELECT_NUM_FINGERPRINTS = ""
     SELECT_ALL_BIRDS = "SELECT birdID, englishName, genericName, specificName, Recorder, Location, Country, " \
                        "lat_lng, xenoCantoURL from %s" % (BIRDS_TBL)
+    SELECT_BIRD_BY_ID = "%s WHERE birdID = '%%s' " % (SELECT_ALL_BIRDS)
 
     SELECT_UNIQUE_SONG_IDS = ""
     SELECT_SONGS = ""
@@ -120,6 +121,18 @@ class MySQLDatabases:
             self.logging.write_log('databases', 'e', ("{get_all_birds()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
             raise Exception(e.message)
 
+    def get_bird_by_id(self, birdID):
+        """
+            return a cursor containing info about a bird
+            with the given birdID
+        """
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(MySQLDatabases.SELECT_BIRD_BY_ID, birdID )
+            return self.cursor.fetchone()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'e', ("{get_bird_by_id()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
+            raise Exception(e.message)
 
     def insert_images(self, birdID, imageURL, siteURL):
         """
@@ -203,5 +216,5 @@ class MySQLDatabases:
         except mysql.Error, e:
             self.connection.rollback()
             self.logging.write_log('databases', 'e',
-                       ("{insert()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], (MySQLDatabases.INSERT_FINGERPRINT, args))))
+                                   ("{insert()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], (MySQLDatabases.INSERT_FINGERPRINT, args))))
 

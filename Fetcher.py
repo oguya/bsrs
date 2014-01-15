@@ -2,11 +2,12 @@ __author__ = 'james'
 
 from Logging import Logging
 from BaseHTTPServer import BaseHTTPRequestHandler
+from Queue import Empty
 import urllib2 as url2
 import os.path
 import os
 import urllib
-import sys
+
 import ConfigParser
 
 class Fetcher:
@@ -63,10 +64,21 @@ class Fetcher:
         url = "http://www.xeno-canto.org/api/recordings.php?query=cnt:kenya"
         response = self.url_ops(url)
 
-    def dl_sound_file(self, soundURL, wavFile):
+    #def dl_sound_file(self, soundURL, wavFile):
+    def dl_sound_file(self, soundURL_queue, wavFile_queue, results):
         """
             download bird sound audio for later fingerprinting
         """
+        soundURL = wavFile = None
+
+        try:
+            #get birdID & soundURL
+            soundURL = soundURL_queue.get()
+            wavFile = wavFile_queue.get()
+        except Empty, e:
+            self.logging.write_log('fetcher', 'i', "Queue empty: %s" % e.message)
+            return False
+
         wavFile = self.BIRD_SOUNDS_DIR + wavFile + ".mp3"
         print "URL: %s dest: %s" % (soundURL, wavFile)
 
@@ -74,8 +86,11 @@ class Fetcher:
             urllib.urlretrieve(soundURL, filename=wavFile)
             info_msg = "downloaded %s saved as: %s" % (soundURL, wavFile)
             self.logging.write_log('fetcher', 'i', info_msg)
-            return True
+
+            #put results in a queue => {'res': True}
+            results.put(True)
         except Exception, e:
+            #results.put(False)
             error_msg = "Unable to download file: %s. Stopping! Execption: %s" % (soundURL, e.args)
             self.logging.write_log('fetcher', 'e', error_msg)
             raise Exception(error_msg)

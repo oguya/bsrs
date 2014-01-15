@@ -9,7 +9,7 @@ from time import time
 import json
 import urllib
 from Queue import *
-from threading import *
+from threading import Thread, Lock, current_thread
 
 class Parsers:
     """
@@ -23,10 +23,10 @@ class Parsers:
                 get_recording_details()
                 get_audio_file()
             page_counter++
-
     """
 
     MAX_IMAGES_URL = 4
+    MAX_NO_THREADS = 100
     CONFIG_FILE = 'bsrs.cfg'
 
     def __init__(self):
@@ -40,9 +40,9 @@ class Parsers:
         self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
                                        password=creds['passwd'], database=creds['db_name'])
 
-        #tmp
-        self.birdID = self.birdName = None
-
+        #queues
+        self.birdID_queue = self.wavFile_queue = Queue()
+        self.results_queue = self.soundtype_queue = self.soundURL_queue = Queue()
 
     def get_db_creds(self):
         """
@@ -138,22 +138,75 @@ class Parsers:
                 #fetch audio file
                 #TODO use threads
 
+                #create queues to hold results, birdID & wavFile
+                #self.birdID_queue = self.wavFile_queue = self.results_queue = Queue()
+
                 wavFile = "%s_%s" % (str(record['en']).replace(' ', '_'), str(birdID))
 
-                status = self.fetcher.dl_sound_file(soundURL=record['file'], wavFile=wavFile)
+                #store values in queues
+                self.birdID_queue.put(birdID)
+                self.wavFile_queue.put(wavFile)
+                self.soundtype_queue.put(record['type'])
+                self.soundURL_queue.put(record['file'])
 
-                if status:
-                    #store sound details in db
-                    self.database.insert_sounds(birdID=birdID, soundType=record['type'],
-                                                wavFile=wavFile, soundURL=record['file'])
+                #status = self.fetcher.dl_sound_file(soundURL=record['file'], wavFile=wavFile)
 
-                #thread.start_new_thread(self.fetcher.dl_sound_file, (record['file'], record['id']+".mp3"))
+                #if status:
+                #    #store sound details in db
+                #    self.database.insert_sounds(birdID=birdID, soundType=record['type'],
+                #                                wavFile=wavFile, soundURL=record['file'])
 
             page_counter += 1
 
         t_delta = time() - t_start
         info_log = "Finished parsing URL: %s Time: %d" % (url, t_delta)
         self.logger.write_log(log_file='parsers', log_tag='i', log_msg=info_log)
+
+        #download all sounds
+        self.threading_ops()
+
+    def threading_ops(self):
+        """
+            create n threads & download sound files
+        """
+        #TODO not mem. efficient => soln??
+
+        self.tmp_sndURL_queue = self.soundURL_queue
+        self.tmp_wavfile_queue = self.wavFile_queue
+
+        #no of threads = qsize
+        Parsers.MAX_NO_THREADS = self.birdID_queue.qsize() if self.birdID_queue.qsize() > Parsers.MAX_NO_THREADS else Parsers.MAX_NO_THREADS
+
+        #create n workers
+        workers = [Thread(target=self.fetcher.dl_sound_file,
+                          args=(self.soundURL_queue, self.wavFile_queue, self.results_queue))
+                   for i in range(Parsers.MAX_NO_THREADS)]
+
+        #start threads
+        for worker in workers:
+            worker.start()
+
+        #get the results & store in db
+        for i in xrange(self.results_queue.qsize()):
+            try:
+                status = self.results_queue.get()
+                birdID = self.birdID_queue.get()
+                sound_type = self.soundtype_queue.get()
+                wav_file = self.tmp_wavfile_queue.get()
+                sound_url = self.tmp_sndURL_queue.get()
+
+                print "status %s" % str(status)
+
+                if status:
+                    #store sound details in db
+                    self.database.insert_sounds(birdID=birdID, soundType=sound_type,
+                                                wavFile=wav_file, soundURL=sound_url)
+            except Empty, e:
+                self.logger.write_log(log_file='parsers', log_tag='e', log_msg="empty queue: %s" % e.message)
+
+        #wait for all threads to complete
+        for worker in workers: worker.join()
+        self.logger.write_log(log_file='parsers', log_tag='i', log_msg="all %d threads done!" % Parsers.MAX_NO_THREADS)
 
     def parse_GAPI(self, birdName, birdID, verbose=False):
         """
