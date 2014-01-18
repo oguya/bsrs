@@ -26,17 +26,19 @@ class MySQLDatabases:
     BIRDS_TBL = "birds"
     IMAGES_TBL = "images"
     SOUNDS_TBL = "sounds"
+    SOUNDS_TMP_TBL = "tmp_sounds"
 
     #sql stmts
     #TODO add queries for select,insert,drops,updates
 
     #inserts
     INSERT_FINGERPRINT = "insert into %s(birdID, hash, start_time) values('%%d','unhex(%%s)', '%%d')" % (FINGERPRINTS_TBL)
-    INSERT_IMAGES = " INSERT INTO %s(birdID, imageURL, siteURL) VALUES ('%%d', '%%s','%%s')" % (IMAGES_TBL)
+    INSERT_IMAGES = " INSERT INTO %s(birdID, imageURL, siteURL) VALUES ('%%s', '%%s','%%s')" % (IMAGES_TBL)
     INSERT_SOUNDS = "INSERT INTO %s(birdID, soundType, wavFile, soundURL) values" \
-                    "('%%d','%%s','%%s', '%%s')" % (SOUNDS_TBL)
+                    "('%%s','%%s','%%s', '%%s')" % (SOUNDS_TBL)
     INSERT_BIRDS = "INSERT INTO %s(englishName, genericName, specificName, Recorder, Location, Country, lat_lng, xenoCantoURL) "\
                    "values('%%s', '%%s', '%%s', '%%s', '%%s', '%%s', '%%s', '%%s')" % (BIRDS_TBL)
+    INSERT_TMP_SOUNDS = "INSERT INTO %s(birdID, wavFile, soundType, soundURL) values('%%s', '%%s', '%%s', '%%s')" % (SOUNDS_TMP_TBL)
 
     #selects
     SELECT = ""
@@ -47,8 +49,8 @@ class MySQLDatabases:
                        "lat_lng, xenoCantoURL from %s" % (BIRDS_TBL)
     SELECT_BIRD_BY_ID = "%s WHERE birdID = '%%s' " % (SELECT_ALL_BIRDS)
 
-    SELECT_UNIQUE_SONG_IDS = ""
-    SELECT_SONGS = ""
+    SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds ORDER BY 1 DESC"
+    #SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds WHERE birdID< '322' ORDER BY 1 DESC"
 
     # update
     UPDATE_SONG_FINGERPRINTED = ""
@@ -95,7 +97,8 @@ class MySQLDatabases:
             record = self.cursor.fetchone()
             return int(record['count'])
         except mysql.Error, e:
-            self.logging.write_log('databases', 'e', ("Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_UNIQUE_SONG_IDS)))
+            self.logging.write_log('databases', 'e', ("Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], MySQLDatabases.SELECT_UNIQUE_SONG_IDS)))
 
     def get_num_fingerprints(self):
         """
@@ -107,7 +110,8 @@ class MySQLDatabases:
             record = self.cursor.fetchone()
             return int(record['count'])
         except mysql.Error, e:
-            self.logging.write_log('databases', 'e', ("{get_num_fingerprints()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_NUM_FINGERPRINTS)))
+            self.logging.write_log('databases', 'e', ("{get_num_fingerprints()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], MySQLDatabases.SELECT_NUM_FINGERPRINTS)))
 
     def get_all_birds(self):
         """
@@ -118,7 +122,8 @@ class MySQLDatabases:
             self.cursor.execute(MySQLDatabases.SELECT_ALL_BIRDS)
             return self.cursor.fetchall()
         except mysql.Error, e:
-            self.logging.write_log('databases', 'e', ("{get_all_birds()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
+            self.logging.write_log('databases', 'e', ("{get_all_birds()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
             raise Exception(e.message)
 
     def get_bird_by_id(self, birdID):
@@ -128,10 +133,11 @@ class MySQLDatabases:
         """
         try:
             self.cursor = self.connection.cursor()
-            self.cursor.execute(MySQLDatabases.SELECT_BIRD_BY_ID, birdID )
+            self.cursor.execute(MySQLDatabases.SELECT_BIRD_BY_ID, birdID)
             return self.cursor.fetchone()
         except mysql.Error, e:
-            self.logging.write_log('databases', 'e', ("{get_bird_by_id()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
+            self.logging.write_log('databases', 'e', ("{get_bird_by_id()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], MySQLDatabases.SELECT_ALL_BIRDS)))
             raise Exception(e.message)
 
     def insert_images(self, birdID, imageURL, siteURL):
@@ -141,19 +147,21 @@ class MySQLDatabases:
         sql = None
 
         #cleaning inputs
-        birdID = mysql.escape_string(birdID)
-        imageURL= mysql.escape_string(imageURL)
-        siteURL = mysql.escape_string(siteURL)
+        birdID = clean(str(birdID))
+        imageURL = clean(imageURL)
+        siteURL = clean(siteURL)
 
         try:
             self.cursor = self.connection.cursor()
             sql = MySQLDatabases.INSERT_IMAGES % (birdID, imageURL, siteURL)
             self.cursor.execute(sql)
-            self.connection.commit()
+            self.connection.autocommit(True)
+            #self.connection.commit()
             return int(self.cursor.lastrowid)
         except mysql.Error, e:
             self.connection.rollback()
-            self.logging.write_log('databases', 'e', ("{insert_images()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], sql)))
+            self.logging.write_log('databases', 'e', ("{insert_images()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
             return None
 
     def insert_birds(self, **kwargs):
@@ -166,7 +174,6 @@ class MySQLDatabases:
             self.cursor = self.connection.cursor()
 
             #clean inputs
-            mysql.escape_string(**kwargs)
             sql = MySQLDatabases.INSERT_BIRDS % (
                 clean(kwargs.get('english_name')), clean(kwargs.get('generic_name')),
                 clean(kwargs.get('specific_name')), clean(kwargs.get('recorder')),
@@ -185,13 +192,14 @@ class MySQLDatabases:
         sql = None
         try:
             self.cursor = self.connection.cursor()
-            sql = MySQLDatabases.INSERT_SOUNDS % (clean(birdID), clean(soundType), clean(wavFile), clean(soundURL))
+            sql = MySQLDatabases.INSERT_SOUNDS % (clean(str(birdID)), clean(soundType), clean(wavFile), clean(soundURL))
             self.cursor.execute(sql)
             self.connection.commit()
             return int(self.cursor.lastrowid)
         except mysql.Error, e:
             self.connection.rollback()
-            self.logging.write_log('databases', 'e', ("{insert_sounds()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], sql)))
+            self.logging.write_log('databases', 'e', ("{insert_sounds()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
             return None
 
     def insert_fingerprints(self, hashes, birdID):
@@ -209,12 +217,52 @@ class MySQLDatabases:
             key => sha1, value => (songID, timeoffset)
         """
         if birdID is not value[0]:
-            print "birdID: %d is not the hashd value: %d "% (birdID, value[0])
+            print "birdID: %d is not the hashd value: %d " % (birdID, value[0])
         try:
             args = (value[0], key, value[1])
             self.cursor.execute(MySQLDatabases.INSERT_FINGERPRINT, args)
         except mysql.Error, e:
             self.connection.rollback()
             self.logging.write_log('databases', 'e',
-                                   ("{insert()} Query Error: %d: %s SQL: %s" % (e.args[0], e.args[1], (MySQLDatabases.INSERT_FINGERPRINT, args))))
+                                   ("{insert()} Query Error: %d: %s SQL: %s" %
+                                    (e.args[0], e.args[1], (MySQLDatabases.INSERT_FINGERPRINT, args))))
 
+    def insert_tmp_sounds(self, birdID, soundType, wavFile, soundURL):
+        """
+            temporarily store sound details in db before downloading
+            the sounds files
+        """
+        sql = None
+        try:
+            self.cursor = self.connection.cursor()
+            sql = MySQLDatabases.INSERT_TMP_SOUNDS % (clean(str(birdID)), clean(wavFile), clean(soundType), soundURL)
+            self.cursor.execute(sql)
+            self.connection.commit()
+            return True
+        except mysql.Error, e:
+            self.connection.rollback()
+            self.logging.write_log('databases', 'e', ("{insert_tmp_sounds()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+            return False
+
+    def get_no_tmp_sounds(self):
+        """
+            return no of tmp sounds in db
+        """
+        sql = "select * from tmp_sounds"
+        self.cursor = self.connection.cursor()
+        self.cursor.execute(sql)
+        return int(self.cursor.rowcount)
+
+    def get_tmp_sounds(self):
+        """
+            get sound details tmp. stored in MySQLdb
+        """
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(MySQLDatabases.SELECT_TMP_SOUNDS)
+            return self.cursor.fetchall()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'e', ("{get_tmp_sounds()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], self.SELECT_TMP_SOUNDS)))
+            return None

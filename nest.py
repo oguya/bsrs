@@ -1,7 +1,7 @@
 __author__ = 'james'
 
 from pydub import AudioSegment
-from time import time
+from time import time, sleep
 import os
 import glob
 
@@ -48,7 +48,9 @@ class Nest:
                 AudioSegment.from_file(media_file).export(wav_file, format='wav')
 
     def fetch_stuff(self):
-        self.parser.parse()
+        pass
+        #self.parser.parse()
+        #self.parser.threading_ops()
 
     def fetch_images(self):
         """
@@ -64,6 +66,6 @@ class Nest:
 if __name__ == '__main__':
     nest = Nest()
     #nest.control_center()
-    nest.fetch_stuff()
-    #nest.fetch_images()
+    #nest.fetch_stuff()
+    nest.fetch_images()
     #nest.mp3_to_wav('/home/james/python-include/BSRS/tmp/')

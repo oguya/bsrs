@@ -28,6 +28,7 @@ class Parsers:
     MAX_IMAGES_URL = 4
     MAX_NO_THREADS = 100
     CONFIG_FILE = 'bsrs.cfg'
+    BIRD_SOUNDS_DIR = 'BirdSounds/'
 
     def __init__(self):
         self.fetcher = Fetcher()
@@ -42,7 +43,7 @@ class Parsers:
 
         #queues
         self.birdID_queue = self.wavFile_queue = Queue()
-        self.results_queue = self.soundtype_queue = self.soundURL_queue = Queue()
+        self.soundtype_queue = self.soundURL_queue = Queue()
 
     def get_db_creds(self):
         """
@@ -79,6 +80,7 @@ class Parsers:
 
     def parse(self):
         url = self.fetcher.BASE_API_URL+'?query=cnt:kenya'
+        API_URL = url
         json_data = json.load(self.get_json_data(url=url))
 
         page_counter = json_data['page']
@@ -91,8 +93,8 @@ class Parsers:
         t_start = time()
 
         while page_counter <= max_pages:
-            url += '&page=%s' % page_counter
-            print "Now parsing Page: %s" % page_counter
+            url = "%s&page=%s" % (API_URL, page_counter)
+            print "Now parsing Page: %d URL:%s" % (page_counter, url)
 
             json_data = json.load(self.get_json_data(url=url))
 
@@ -135,26 +137,11 @@ class Parsers:
                 info_log += "src_url: %s " % record['url']
                 self.logger.write_log(log_file='parsers', log_tag='i', log_msg=info_log)
 
-                #fetch audio file
-                #TODO use threads
-
-                #create queues to hold results, birdID & wavFile
-                #self.birdID_queue = self.wavFile_queue = self.results_queue = Queue()
-
                 wavFile = "%s_%s" % (str(record['en']).replace(' ', '_'), str(birdID))
 
-                #store values in queues
-                self.birdID_queue.put(birdID)
-                self.wavFile_queue.put(wavFile)
-                self.soundtype_queue.put(record['type'])
-                self.soundURL_queue.put(record['file'])
-
-                #status = self.fetcher.dl_sound_file(soundURL=record['file'], wavFile=wavFile)
-
-                #if status:
-                #    #store sound details in db
-                #    self.database.insert_sounds(birdID=birdID, soundType=record['type'],
-                #                                wavFile=wavFile, soundURL=record['file'])
+                #store sound details temporarily in db
+                self.database.insert_tmp_sounds(birdID=birdID, soundType=record['type'], wavFile=wavFile,
+                                                soundURL=record['file'])
 
             page_counter += 1
 
@@ -169,57 +156,37 @@ class Parsers:
         """
             create n threads & download sound files
         """
-        #TODO not mem. efficient => soln??
+        num_rows = self.database.get_no_tmp_sounds()
+        wavFile_queue = soundURL_queue = Queue(maxsize=num_rows)
+        cursor = self.database.get_tmp_sounds()
 
-        self.tmp_sndURL_queue = self.soundURL_queue
-        self.tmp_wavfile_queue = self.wavFile_queue
+        for row in cursor:
+            wavFile_queue.put(str.format("%s%s.mp3" % (Parsers.BIRD_SOUNDS_DIR, row['wavFile'])))
+            soundURL_queue.put(row['soundURL'])
 
-        #no of threads = qsize
-        Parsers.MAX_NO_THREADS = self.birdID_queue.qsize() if self.birdID_queue.qsize() > Parsers.MAX_NO_THREADS else Parsers.MAX_NO_THREADS
+            self.database.insert_sounds(birdID=row['birdID'], soundType=row['soundType'],
+                                        wavFile=row['wavFile'], soundURL=row['soundURL'])
 
-        #create n workers
-        workers = [Thread(target=self.fetcher.dl_sound_file,
-                          args=(self.soundURL_queue, self.wavFile_queue, self.results_queue))
-                   for i in range(Parsers.MAX_NO_THREADS)]
+            wav_file = str.format("%s%s.mp3" % (Parsers.BIRD_SOUNDS_DIR, row['wavFile']))
+            t = Thread(target=self.fetcher.dl_sound_file_v2, args=(row['soundURL'], wav_file))
+            t.setDaemon(True)
+            t.start()
+            t.join()
 
-        #start threads
-        for worker in workers:
-            worker.start()
-
-        #get the results & store in db
-        for i in xrange(self.results_queue.qsize()):
-            try:
-                status = self.results_queue.get()
-                birdID = self.birdID_queue.get()
-                sound_type = self.soundtype_queue.get()
-                wav_file = self.tmp_wavfile_queue.get()
-                sound_url = self.tmp_sndURL_queue.get()
-
-                print "status %s" % str(status)
-
-                if status:
-                    #store sound details in db
-                    self.database.insert_sounds(birdID=birdID, soundType=sound_type,
-                                                wavFile=wav_file, soundURL=sound_url)
-            except Empty, e:
-                self.logger.write_log(log_file='parsers', log_tag='e', log_msg="empty queue: %s" % e.message)
-
-        #wait for all threads to complete
-        for worker in workers: worker.join()
-        self.logger.write_log(log_file='parsers', log_tag='i', log_msg="all %d threads done!" % Parsers.MAX_NO_THREADS)
-
-    def parse_GAPI(self, birdName, birdID, verbose=False):
+    def parse_GAPI(self, birdName, birdID, verbose=True):
         """
             download & parse json file containing bird images from
             google url
         """
+        birdName = str(birdName).replace('-', ' ')
+
         query = urllib.urlencode({'q': birdName})
-        url = self.fetcher.BASE_API_URL+'?v=1.0&'+query
+        url = self.fetcher.BASE_GAPI_URL+'?v=1.0&'+query
+        print "URL: %s" % url
         json_data = json.load(self.get_json_data(url=url))
 
         if verbose:
             print "GAPI URL: %s\n BirdName: %s BirdID: %d " % (url, birdName, birdID)
-
         response_status = json_data['responseStatus']
         if int(response_status) is not 200:
             raise Exception("response from GAPI: %s" % response_status)
@@ -239,3 +206,4 @@ class Parsers:
                 logs = "imageURL: %s\n siteURL: %s" % (imageURL, siteURL)
                 self.logger.write_log(log_file='parsers', log_tag='i', log_msg=logs)
                 print logs
+

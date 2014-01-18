@@ -3,6 +3,7 @@ __author__ = 'james'
 from Logging import Logging
 from BaseHTTPServer import BaseHTTPRequestHandler
 from Queue import Empty
+from threading import current_thread
 import urllib2 as url2
 import os.path
 import os
@@ -21,7 +22,7 @@ class Fetcher:
     BIRD_SOUNDS_DIR = 'BirdSounds/'
     CONFIG_FILE = 'bsrs.cfg'
     BASE_API_URL = 'http://www.xeno-canto.org/api/recordings.php'
-    BASE_GAPI_URL = 'https://ajax.googleapis.com/ajax/services/search/images'
+    BASE_GAPI_URL = 'http://ajax.googleapis.com/ajax/services/search/images'
 
     Logging = Logging()
     ErrorCodes = BaseHTTPRequestHandler.responses
@@ -64,36 +65,37 @@ class Fetcher:
         url = "http://www.xeno-canto.org/api/recordings.php?query=cnt:kenya"
         response = self.url_ops(url)
 
-    #def dl_sound_file(self, soundURL, wavFile):
-    def dl_sound_file(self, soundURL_queue, wavFile_queue, results):
+    def dl_sound_file(self, sound_url_queue, wav_file_queue):
         """
-            download bird sound audio for later fingerprinting
+            download bird sounds
         """
-        soundURL = wavFile = None
-
         try:
-            #get birdID & soundURL
-            soundURL = soundURL_queue.get()
-            wavFile = wavFile_queue.get()
+            sound_url = sound_url_queue.get()
+            wav_file = wav_file_queue.get()
+
+            print "URL: %s Dest: %s" % (sound_url, wav_file)
+
+            response = self.url_ops(url=sound_url)
+
+            with open(wav_file, "wb") as sound_file:
+                sound_file.write(response.read())
+                sound_file.close()
+            self.logging.write_log('fetcher', 'i', "downloaded URL : %s. Dest: %s" % (sound_url, wav_file))
         except Empty, e:
-            self.logging.write_log('fetcher', 'i', "Queue empty: %s" % e.message)
-            return False
+            raise Exception(e)
 
-        wavFile = self.BIRD_SOUNDS_DIR + wavFile + ".mp3"
-        print "URL: %s dest: %s" % (soundURL, wavFile)
+    def dl_sound_file_v2(self, sound_url, wav_file):
+        """
+            download bird sounds
+        """
+        print "URL: %s Dest: %s" % (sound_url, wav_file)
 
-        try:
-            urllib.urlretrieve(soundURL, filename=wavFile)
-            info_msg = "downloaded %s saved as: %s" % (soundURL, wavFile)
-            self.logging.write_log('fetcher', 'i', info_msg)
+        response = self.url_ops(url=sound_url)
 
-            #put results in a queue => {'res': True}
-            results.put(True)
-        except Exception, e:
-            #results.put(False)
-            error_msg = "Unable to download file: %s. Stopping! Execption: %s" % (soundURL, e.args)
-            self.logging.write_log('fetcher', 'e', error_msg)
-            raise Exception(error_msg)
+        with open(wav_file, "wb") as sound_file:
+            sound_file.write(response.read())
+            sound_file.close()
+        self.logging.write_log('fetcher', 'i', "downloaded URL : %s. Dest: %s" % (sound_url, wav_file))
 
     def proxied_nets(self):
         use_proxy = self.config.getboolean('Proxies', 'use_http_proxy')
@@ -137,7 +139,7 @@ class Fetcher:
         req = url2.Request(url, data=None, headers=headers)
 
         try:
-            response = url2.urlopen(req)
+            response = url2.urlopen(req, timeout=30)
             #assert isinstance(response, object)
             if response.code is not 200:
                 error_log = "Didn't expect code: %d. Quitting" % response.code
@@ -148,7 +150,7 @@ class Fetcher:
             return response
         except url2.HTTPError, e:
             error_log = "HTTP Error: %s " % e.code
-            error_log += "Error Details: ", self.ErrorCodes[e.code][0], ":", self.ErrorCodes[e.code][1]
+            error_log += "Error Details: %s:%s " % (self.ErrorCodes[e.code][0], self.ErrorCodes[e.code][1])
             print error_log
             self.logging.write_log(log_file='fetcher', log_tag='e', log_msg=error_log)
         except url2.URLError, e:
