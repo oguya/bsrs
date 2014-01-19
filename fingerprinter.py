@@ -13,6 +13,8 @@ from scipy.ndimage.filters import maximum_filter
 from scipy.io import wavfile
 from matplotlib import mlab
 from matplotlib import pyplot
+from databases import MySQLDatabases
+from Config import Configs
 
 class Fingerprinter(object):
     """
@@ -47,6 +49,12 @@ class Fingerprinter(object):
         self.amp_min = amp_min
         self.noverlap = int(self.window_size * self.window_overlap_ratio)
 
+        self.configs = Configs()
+        creds = self.configs.get_db_creds()
+
+        self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
+                                       password=creds['passwd'], database=creds['db_name'])
+
     def extract_channels(self, path):
         """
             extract audio channels
@@ -66,17 +74,15 @@ class Fingerprinter(object):
             channels.append(frames[:, channel])
         return channels
 
-    def fingerprint(self, samples, song_id):
+    def fingerprint(self, samples, bird_id):
         """
             generate fingerprints of known songs
         """
-        hashes = self.process_channel(samples, song_id=song_id)
+        hashes = self.process_channel(samples, bird_id)
+        print "hashes generated: %d" % len(hashes)
+        self.database.insert_fingerprints(hashes, bird_id)
 
-        open('/home/james/python-include/numpy/fingerprint_hashes_SHA1.txt', 'w+').writelines(str(hashes))
-        #np.savetxt('/home/james/python-include/numpy/fingerprint_hashes_SHA1.txt', np.array(hashes))
-        print "Hashes: ", len(hashes)
-
-    def process_channel(self, channel_samples, song_id=None):
+    def process_channel(self, channel_samples, song_id):
         """
             FFT channel_samples, log transform FFT output, find local maxima,
             return locally sensitive hashes - sha1
@@ -93,17 +99,14 @@ class Fingerprinter(object):
         arr2d = 10 * np.log10(arr2d)
 
         #get local maxima pts
-        local_maxima = self.get_2D_peaks(arr2d, song_id, True)
+        local_maxima = self.get_2D_peaks(arr2d, song_id, False)
         return self.generate_hashes(local_maxima, song_id=song_id)
 
-    def get_2D_peaks(self, arr2D, song_id=None, plot=True):
+    def get_2D_peaks(self, arr2D, song_id, plot=False):
         """
             get local maxima pts
             http://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.morphology.iterate_structure.html#scipy.ndimage.morphology.iterate_structure
         """
-        #TODO add tenary operator here
-        if song_id is None:
-            song_id = ''
 
         struct = generate_binary_structure(2, 1)
         neighborhood = iterate_structure(struct, Fingerprinter.PEAK_NEIGHBORHOOD_SIZE)
@@ -146,7 +149,7 @@ class Fingerprinter(object):
 
         return zip(frequency_idx, time_idx)
 
-    def generate_hashes(self, peaks, song_id=None):
+    def generate_hashes(self, peaks, song_id):
         """
             Hash struct:
             sha1-hash[0:20] song_id, time_offset
@@ -168,16 +171,17 @@ class Fingerprinter(object):
 
                     if t_delta >= Fingerprinter.MIN_HASH_TIME_DELTA:
                         h = hashlib.sha1("%s|%s|%s" % (str(freq1), str(freq2), str(t_delta)))
-                        hashes.append((h.hexdigest()[0:20], (song_id, t1)))
+                        hashes.append((h.hexdigest()[0:40], (song_id, t1)))
 
                     #add to to fpr set
                     fingerprinted.add((i, i+j))
         return hashes
 
-    def insert_to_db(self, key, value):
+    def insert_to_db(self, key, value,birdID):
         """
             insert hashes to db
         """
+        self.database.insert(key, value, birdID)
         pass
 
     def match(self, samples):
@@ -185,8 +189,8 @@ class Fingerprinter(object):
             matching uknown songs with known ones
         """
         hashes = self.process_channel(samples)
-        matches = self.db.return_matches(hashes)
-        pass
+        matches = self.database.get_matches(hashes)
+        return matches
 
     def align_matches(self, matches, starttime, record_seconds=0, verbose=False):
         """
@@ -216,8 +220,8 @@ class Fingerprinter(object):
         if verbose: print "Diff is %d with %d offset-aligned matches" % (largest, largest_count)
 
         #get song details
-        songname = self.db.get_song_by_id(song_id)[SQLDatabase.FIELD_SONGNAME]
-        songname = songname.replace("_", " ")
+        songname = self.database.get_bird_by_id(birdID=song_id)[MySQLDatabases.FIELD_BIRDNAME]
+        songname = songname.replace("-", " ")
         elapsed = time.time() - starttime
 
         if verbose:
@@ -235,4 +239,3 @@ class Fingerprinter(object):
             song['record_time'] = record_seconds
 
         return song
-

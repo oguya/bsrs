@@ -28,11 +28,14 @@ class MySQLDatabases:
     SOUNDS_TBL = "sounds"
     SOUNDS_TMP_TBL = "tmp_sounds"
 
+    #tbl field names
+    FIELD_BIRDNAME = "englishName"
+
     #sql stmts
     #TODO add queries for select,insert,drops,updates
 
     #inserts
-    INSERT_FINGERPRINT = "insert into %s(birdID, hash, start_time) values('%%d','unhex(%%s)', '%%d')" % (FINGERPRINTS_TBL)
+    INSERT_FINGERPRINT = "INSERT INTO %s(birdID, hash, start_time) values(%%s,unhex(%%s), %%s)" % (FINGERPRINTS_TBL)
     INSERT_IMAGES = " INSERT INTO %s(birdID, imageURL, siteURL) VALUES ('%%s', '%%s','%%s')" % (IMAGES_TBL)
     INSERT_SOUNDS = "INSERT INTO %s(birdID, soundType, wavFile, soundURL) values" \
                     "('%%s','%%s','%%s', '%%s')" % (SOUNDS_TBL)
@@ -41,9 +44,10 @@ class MySQLDatabases:
     INSERT_TMP_SOUNDS = "INSERT INTO %s(birdID, wavFile, soundType, soundURL) values('%%s', '%%s', '%%s', '%%s')" % (SOUNDS_TMP_TBL)
 
     #selects
-    SELECT = ""
-    SELECT_ALL = ""
-    SELECT_SONG = ""
+    SELECT = "SELECT birdID, start_time FROM %s WHERE hash = UNHEX(%%s);" % (FINGERPRINTS_TBL)
+    SELECT_ALL = "SELECT birdID, start_time FROM %s" % (FINGERPRINTS_TBL)
+
+    SELECT_SOUNDS = "SELECT birdID, wavFile FROM %s" % (SOUNDS_TBL)
     SELECT_NUM_FINGERPRINTS = ""
     SELECT_ALL_BIRDS = "SELECT birdID, englishName, genericName, specificName, Recorder, Location, Country, " \
                        "lat_lng, xenoCantoURL from %s" % (BIRDS_TBL)
@@ -208,24 +212,81 @@ class MySQLDatabases:
         """
         for hash in hashes:
             sha1, val = hash
-            self.insert(birdID, sha1, val)
+            self.insert(key=sha1, value=val, birdID=birdID)
         self.connection.commit()
 
     def insert(self, key, value, birdID):
         """
             insert a (sha1, songID, timeoffset) into MySQLdb
-            key => sha1, value => (songID, timeoffset)
+            key => sha1, value => (birdID, timeoffset)
         """
-        if birdID is not value[0]:
-            print "birdID: %d is not the hashd value: %d " % (birdID, value[0])
         try:
             args = (value[0], key, value[1])
+            sql = MySQLDatabases.INSERT_FINGERPRINT % (value[0], key, value[1])
+
+            with open('Logs/hashes.txt', 'a+') as hashes:
+                hashes.write("%s\n" % sql)
+                hashes.close()
+
             self.cursor.execute(MySQLDatabases.INSERT_FINGERPRINT, args)
+            self.connection.commit()
         except mysql.Error, e:
             self.connection.rollback()
             self.logging.write_log('databases', 'e',
                                    ("{insert()} Query Error: %d: %s SQL: %s" %
                                     (e.args[0], e.args[1], (MySQLDatabases.INSERT_FINGERPRINT, args))))
+
+    def get_sounds(self):
+        """
+            return a list containing birdID & songnames
+        """
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(MySQLDatabases.SELECT_SOUNDS)
+            return self.cursor.fetchall()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'e', ("{get_sounds()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], self.SELECT_SOUNDS)))
+            return None
+
+    def get_matches(self, hashes):
+        """
+            return (bird_id, offset) tuples
+               of sha1-> (None, sample_offset) vals
+        """
+        matches = []
+        for h in hashes:
+            sha1, val = h
+            tups_lst = self.query_db(sha1)
+            if tups_lst:
+                for tup in tups_lst:
+                    matches.append((tup[0], tup[1] - val[1]))
+        return matches
+
+    def query_db(self, key):
+        """
+            return all tuples associated with the hash
+
+            if hash is None, return all entries
+        """
+        #select all if no key is given
+        if key is None:
+            sql = MySQLDatabases.SELECT_ALL
+        else:
+            sql = MySQLDatabases.SELECT
+
+        matches = []
+        try:
+            self.cursor.execute(sql, (key,))
+
+            #get all matches
+            rows = self.cursor.fetchall()
+            for row in rows:
+                matches.append((row['birdID'],row['start_time']))
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'e', ("{query_db()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+        return matches
 
     def insert_tmp_sounds(self, birdID, soundType, wavFile, soundURL):
         """
