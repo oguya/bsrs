@@ -47,8 +47,9 @@ class MySQLDatabases:
     SELECT = "SELECT birdID, start_time FROM %s WHERE hash = UNHEX(%%s);" % (FINGERPRINTS_TBL)
     SELECT_ALL = "SELECT birdID, start_time FROM %s" % (FINGERPRINTS_TBL)
 
-    SELECT_SOUNDS = "SELECT birdID, wavFile FROM %s" % (SOUNDS_TBL)
-    SELECT_NUM_FINGERPRINTS = ""
+    SELECT_SOUNDS = "SELECT birdID, wavFile, fingerprinted FROM %s" % (SOUNDS_TBL)
+    SELECT_NON_FINGERPRINTED_SOUNDS = "%s WHERE fingerprinted = 0" % (SELECT_SOUNDS)
+    SELECT_NUM_FINGERPRINTS = "SELECT COUNT(*) AS fingerprints FROM %s" % (FINGERPRINTS_TBL)
     SELECT_ALL_BIRDS = "SELECT birdID, englishName, genericName, specificName, Recorder, Location, Country, " \
                        "lat_lng, xenoCantoURL from %s" % (BIRDS_TBL)
     SELECT_BIRD_BY_ID = "%s WHERE birdID = '%%s' " % (SELECT_ALL_BIRDS)
@@ -57,7 +58,7 @@ class MySQLDatabases:
     #SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds WHERE birdID< '322' ORDER BY 1 DESC"
 
     # update
-    UPDATE_SONG_FINGERPRINTED = ""
+    UPDATE_SONG_FINGERPRINTED = "UPDATE %s SET fingerprinted=1 where birdID = '%%s'" % (SOUNDS_TBL)
 
     # delete
     DELETE_UNFINGERPRINTED = ""
@@ -75,6 +76,11 @@ class MySQLDatabases:
         try:
             self.connection = mysql.connect(host=hostname, user=username, passwd=password,
                                             db=database, cursorclass=cursors.DictCursor)
+            self.KEY_USERNAME = username
+            self.KEY_DATABASE = database
+            self.KEY_PASSWORD = password
+            self.KEY_HOST = hostname
+
             self.connection.autocommit(False)
             self.cursor = self.connection.cursor()
             self.logging.write_log('databases', 'i', "successfully connected to DB. DB Version: %s" %
@@ -229,7 +235,7 @@ class MySQLDatabases:
                 hashes.close()
 
             self.cursor.execute(MySQLDatabases.INSERT_FINGERPRINT, args)
-            self.connection.commit()
+            self.connection.autocommit(True)
         except mysql.Error, e:
             self.connection.rollback()
             self.logging.write_log('databases', 'e',
@@ -242,7 +248,7 @@ class MySQLDatabases:
         """
         try:
             self.cursor = self.connection.cursor()
-            self.cursor.execute(MySQLDatabases.SELECT_SOUNDS)
+            self.cursor.execute(MySQLDatabases.SELECT_NON_FINGERPRINTED_SOUNDS)
             return self.cursor.fetchall()
         except mysql.Error, e:
             self.logging.write_log('databases', 'e', ("{get_sounds()} Query Error: %d: %s SQL: %s" %
@@ -282,11 +288,25 @@ class MySQLDatabases:
             #get all matches
             rows = self.cursor.fetchall()
             for row in rows:
-                matches.append((row['birdID'],row['start_time']))
+                matches.append((row['birdID'], row['start_time']))
         except mysql.Error, e:
             self.logging.write_log('databases', 'e', ("{query_db()} Query Error: %d: %s SQL: %s" %
                                                       (e.args[0], e.args[1], sql)))
         return matches
+
+    def update_fingerprinted_songs(self, birdID):
+        """
+            update fingerprinted songs in db..to avoid re-fingerprinting
+        """
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(MySQLDatabases.UPDATE_SONG_FINGERPRINTED, birdID)
+            self.connection.commit()
+            self.logging.write_log('databases', 'i', "finished fingerprinting -> birdId: %s " % str(birdID))
+        except mysql.Error, e:
+            self.connection.rollback()
+            self.logging.write_log('databases', 'e', ("{update_fingerprinted_songs()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], self.SELECT_TMP_SOUNDS)))
 
     def insert_tmp_sounds(self, birdID, soundType, wavFile, soundURL):
         """

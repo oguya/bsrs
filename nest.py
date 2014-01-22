@@ -3,6 +3,8 @@ __author__ = 'james'
 from pydub import AudioSegment
 from time import time
 from threading import Thread
+from multiprocessing import  Process, current_process
+from random import shuffle
 import os
 import glob
 
@@ -12,6 +14,7 @@ from Fetcher import Fetcher
 from Parsers import Parsers
 from Config import Configs
 from databases import MySQLDatabases
+from recognizer import Recognizer
 
 
 class Nest:
@@ -24,6 +27,7 @@ class Nest:
 
     SOUNDS_DIR = 'BirdSounds/'
     WAV_SOUNDS_DIR = 'BirdSounds/wavSounds/'
+    MAX_PROCS = 10
 
     def __init__(self):
         self.fingerprinter = Fingerprinter()
@@ -51,6 +55,12 @@ class Nest:
         #self.parser.parse()
         #self.parser.threading_ops()
 
+    def chunkify(self, lst, n):
+        """
+        split a list into n no of parts
+        """
+        return [lst[i::n] for i in xrange(n)]
+
     def fetch_images(self):
         """
         get all birds from db
@@ -68,36 +78,59 @@ class Nest:
         """
         cursor = self.database.get_sounds()
         threads = []
+        sound_details = []
 
+        count = 0
+        print len(cursor)
         for row in cursor:
             birdID = row['birdID']
             wavFile = "%s%s.wav" % (Nest.WAV_SOUNDS_DIR, row['wavFile'])
+            sound_details.append((birdID, wavFile))
 
-            t = Thread(target=self.fingerprint_worker, args=(wavFile, birdID))
-            t.start()
-            threads.append(t)
+        shuffle(sound_details)
+        split_details = self.chunkify(sound_details, Nest.MAX_PROCS)
 
-        #wait for all threads to complete
-        for thread in threads:
-            thread.join()
+        #split procs
+        procs = []
+        for i in range(Nest.MAX_PROCS):
+            #create separate/non-shared connections to db
+            creds = Configs().get_db_creds()
+            self.database = self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
+                                                           password=creds['passwd'], database=creds['db_name'])
 
-    def fingerprint_worker(self, wavFile, birdID):
+            #create procs & start
+            proc = Process(target=self.fingerprint_worker, args=([split_details[i]]))
+            proc.start()
+            procs.append(proc)
+
+        #wait for all procs to finish
+        for proc in procs:
+            proc.join()
+
+        self.fingerprint_worker(sound_details)
+
+    def fingerprint_worker(self, sound_details):
         """
             fingerprint each song & store hash in db
         """
-        channels = self.fingerprinter.extract_channels(wavFile)
-        for c in range(len(channels)):
-            channel = channels[c]
-            t_start = time()
-            logs = "now fingerprinting channel %d of song %s. BirdID: %s" % (c + 1, wavFile, birdID)
-            self.logger.write_log(log_file='fingerprint', log_tag='i', log_msg=logs)
-            print logs
-            self.fingerprinter.fingerprint(channel, birdID)
-            t_end = time()
-            logs = "time taken: %d seconds" % (t_end - t_start)
-            self.logger.write_log(log_file='fingerprint', log_tag='i', log_msg=logs)
-            print logs
 
+        for birdID, wavFile in sound_details:
+            print "birdID: ", birdID, "wavFile: ", wavFile
+
+            channels = self.fingerprinter.extract_channels(wavFile)
+            for c in range(len(channels)):
+                channel = channels[c]
+                t_start = time()
+                logs = "now fingerprinting channel %d of song %s. BirdID: %s" % (c + 1, wavFile, birdID)
+                self.logger.write_log(log_file='fingerprint', log_tag='i', log_msg=logs)
+                print logs
+                self.fingerprinter.fingerprint(channel, birdID)
+                logs = "time taken: %d seconds" % (time() - t_start)
+                self.logger.write_log(log_file='fingerprint', log_tag='i', log_msg=logs)
+                print logs
+
+            #update song as fingerprinted
+            self.database.update_fingerprinted_songs(birdID=birdID)
 
 
 if __name__ == '__main__':
@@ -105,3 +138,7 @@ if __name__ == '__main__':
     #nest.control_center()
     #nest.mp3_to_wav(Nest.SOUNDS_DIR)
     nest.fingerprint_sounds()
+    #recognizer = Recognizer()
+    #song = recognizer.recognize_file(filename="BirdSounds/wavSounds/Kenya_Sparrow_584.wav")
+    #song = recognizer.listen(seconds=10, verbose=True)
+    #print "Song details: ", song

@@ -3,7 +3,7 @@ from pygments.lexer import using
 __author__ = 'james'
 
 
-import wave, os
+import wave
 import numpy as np
 import hashlib
 import time
@@ -11,10 +11,12 @@ import time
 from scipy.ndimage.morphology import generate_binary_structure, iterate_structure, binary_erosion
 from scipy.ndimage.filters import maximum_filter
 from scipy.io import wavfile
-from matplotlib import mlab
-from matplotlib import pyplot
+from matplotlib import mlab, pyplot
+from pprint import pprint
+
 from databases import MySQLDatabases
 from Config import Configs
+
 
 class Fingerprinter(object):
     """
@@ -69,9 +71,12 @@ class Fingerprinter(object):
             self.Fs = Fs
             print "new Fs: ", self.Fs
             pass
+        try:
+            for channel in range(nchannels):
+                channels.append(frames[:, channel])
+        except IndexError, e:
+            pass
 
-        for channel in range(nchannels):
-            channels.append(frames[:, channel])
         return channels
 
     def fingerprint(self, samples, bird_id):
@@ -82,7 +87,7 @@ class Fingerprinter(object):
         print "hashes generated: %d" % len(hashes)
         self.database.insert_fingerprints(hashes, bird_id)
 
-    def process_channel(self, channel_samples, song_id):
+    def process_channel(self, channel_samples, song_id=None):
         """
             FFT channel_samples, log transform FFT output, find local maxima,
             return locally sensitive hashes - sha1
@@ -203,9 +208,9 @@ class Fingerprinter(object):
         diff_counter = {}
         largest = 0
         largest_count = 0
-        song_id = -1
+        bird_id = -1
         for tup in matches:
-            sid, diff = tup;
+            sid, diff = tup
             if not diff in diff_counter:
                 diff_counter[diff] = {}
             if not sid in diff_counter[diff]:
@@ -215,27 +220,29 @@ class Fingerprinter(object):
             if diff_counter[diff][sid] > largest_count:
                 largest = diff
                 largest_count = diff_counter[diff][sid]
-                song_id = sid
+                bird_id = sid
 
         if verbose: print "Diff is %d with %d offset-aligned matches" % (largest, largest_count)
 
         #get song details
-        songname = self.database.get_bird_by_id(birdID=song_id)[MySQLDatabases.FIELD_BIRDNAME]
-        songname = songname.replace("-", " ")
+        bird_name = self.database.get_bird_by_id(birdID=bird_id)[MySQLDatabases.FIELD_BIRDNAME]
+        bird_name = bird_name.replace("-", " ")
         elapsed = time.time() - starttime
 
         if verbose:
-            print "Song is %s, song ID = %d. Recognized in %f seconds" % (songname, song_id, elapsed)
+            print "Bird name is %s, birdID = %d. Recognized in %f seconds" % (bird_name, bird_id, elapsed)
 
         #return match info
         song = {
-            "song_id": song_id,
-            "song_name": songname,
+            "bird_id": int(bird_id),
+            "song_name": bird_name,
             "match_time": elapsed,
             "confidence": largest_count
         }
 
         if record_seconds:
             song['record_time'] = record_seconds
+
+        pprint(song)
 
         return song
