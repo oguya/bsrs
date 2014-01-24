@@ -42,16 +42,16 @@ class Recognizer(object):
 
         return self.fingerprinter.align_matches(matches=matches, starttime=starttime, verbose=verbose)
 
-    def listen(self, seconds=10, verbose=True):
+    def listen(self, seconds=30, verbose=True):
         """
             recognize unknown audio from microphone
         """
         #open audio stream
-        stream = self.audio.open(format=Recognizer.FORMAT, channel=Recognizer.CHANNELS,
-                                 rate=Recognizer.RATE, input=True, frame_per_buffer=Recognizer.CHUNK)
+        stream = self.audio.open(format=Recognizer.FORMAT, channels=Recognizer.CHANNELS,
+                                 rate=Recognizer.RATE, input=True, frames_per_buffer=Recognizer.CHUNK)
 
         #record
-        if verbose: print "****Listening****"
+        if verbose: print "****Listening for %d seconds****" % seconds
         left, right = [], []
         for i in range(0, int(Recognizer.RATE / Recognizer.CHUNK * seconds)):
             data = stream.read(Recognizer.CHUNK)
@@ -59,13 +59,14 @@ class Recognizer(object):
             left.extend(nums[1::2])
             right.extend(nums[0::2])
 
-        if verbose: print ("***done recording***")
+        if verbose: print ("***done listening***")
 
         #stop & close audio stream
         stream.stop_stream()
         stream.close()
 
         #match both channels
+        if verbose: print ("***now matching***")
         starttime = time.time()
         matches = []
         matches.extend(self.fingerprinter.match(samples=left))

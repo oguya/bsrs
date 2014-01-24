@@ -224,25 +224,46 @@ class Fingerprinter(object):
 
         if verbose: print "Diff is %d with %d offset-aligned matches" % (largest, largest_count)
 
-        #get song details
+        #get bird details
         bird_name = self.database.get_bird_by_id(birdID=bird_id)[MySQLDatabases.FIELD_BIRDNAME]
         bird_name = bird_name.replace("-", " ")
         elapsed = time.time() - starttime
 
+        if largest < 0:
+            print "Unkown bird sound!"
+            bird_details = {
+                "bird_id": 0,
+                "bird_name": "unknown",
+                "song_name": "unknown",
+                "match_time": elapsed,
+                "confidence": "unkown"
+            }
+            return bird_details
+
         if verbose:
             print "Bird name is %s, birdID = %d. Recognized in %f seconds" % (bird_name, bird_id, elapsed)
 
+        #get sound details
+        cursor = self.database.get_sound_by_id(birdID=bird_id)
+        sound_details = {
+            "sound_type": cursor['soundType'],
+            "wav_file": cursor['wavFile'],
+            "sound_url": cursor['soundURL']
+        }
+
         #return match info
-        song = {
+        bird_details = {
             "bird_id": int(bird_id),
+            "bird_name": bird_name,
             "song_name": bird_name,
             "match_time": elapsed,
             "confidence": largest_count
         }
 
         if record_seconds:
-            song['record_time'] = record_seconds
+            bird_details['record_time'] = record_seconds
 
-        pprint(song)
+        pprint(bird_details)
+        pprint(sound_details)
 
-        return song
+        return bird_details

@@ -92,20 +92,20 @@ class Nest:
 
         #split procs
         procs = []
-        for i in range(Nest.MAX_PROCS):
-            #create separate/non-shared connections to db
-            creds = Configs().get_db_creds()
-            self.database = self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
-                                                           password=creds['passwd'], database=creds['db_name'])
-
-            #create procs & start
-            proc = Process(target=self.fingerprint_worker, args=([split_details[i]]))
-            proc.start()
-            procs.append(proc)
-
-        #wait for all procs to finish
-        for proc in procs:
-            proc.join()
+        #for i in range(Nest.MAX_PROCS):
+        #    #create separate/non-shared connections to db
+        #    creds = Configs().get_db_creds()
+        #    self.database = self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
+        #                                                   password=creds['passwd'], database=creds['db_name'])
+        #
+        #    #create procs & start
+        #    proc = Process(target=self.fingerprint_worker, args=([split_details[i]]))
+        #    proc.start()
+        #    procs.append(proc)
+        #
+        ##wait for all procs to finish
+        #for proc in procs:
+        #    proc.join()
 
         self.fingerprint_worker(sound_details)
 
@@ -137,8 +137,9 @@ if __name__ == '__main__':
     nest = Nest()
     #nest.control_center()
     #nest.mp3_to_wav(Nest.SOUNDS_DIR)
-    nest.fingerprint_sounds()
-    #recognizer = Recognizer()
-    #song = recognizer.recognize_file(filename="BirdSounds/wavSounds/Kenya_Sparrow_584.wav")
-    #song = recognizer.listen(seconds=10, verbose=True)
-    #print "Song details: ", song
+    #nest.fingerprint_sounds()
+    recognizer = Recognizer()
+    #bird  = recognizer.recognize_file(filename="BirdSounds/wavSounds/Kenya_Sparrow_584.wav")
+    #bird = recognizer.recognize_file(filename="341.wav")
+    bird = recognizer.listen(seconds=10, verbose=True)
+    print "bird details: ", bird
