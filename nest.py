@@ -139,7 +139,7 @@ if __name__ == '__main__':
     #nest.mp3_to_wav(Nest.SOUNDS_DIR)
     #nest.fingerprint_sounds()
     recognizer = Recognizer()
-    #bird  = recognizer.recognize_file(filename="BirdSounds/wavSounds/Kenya_Sparrow_584.wav")
+    bird = recognizer.recognize_file(filename="BirdSounds/wavSounds/Clarke's_Weaver_602.wav")
     #bird = recognizer.recognize_file(filename="341.wav")
-    bird = recognizer.listen(seconds=10, verbose=True)
+    #bird = recognizer.listen(seconds=10, verbose=True)
     print "bird details: ", bird

@@ -27,6 +27,7 @@ class MySQLDatabases:
     IMAGES_TBL = "images"
     SOUNDS_TBL = "sounds"
     SOUNDS_TMP_TBL = "tmp_sounds"
+    STATS_TBL = "stats"
 
     #tbl field names
     FIELD_BIRDNAME = "englishName"
@@ -42,6 +43,7 @@ class MySQLDatabases:
     INSERT_BIRDS = "INSERT INTO %s(englishName, genericName, specificName, Recorder, Location, Country, lat_lng, xenoCantoURL) "\
                    "values('%%s', '%%s', '%%s', '%%s', '%%s', '%%s', '%%s', '%%s')" % (BIRDS_TBL)
     INSERT_TMP_SOUNDS = "INSERT INTO %s(birdID, wavFile, soundType, soundURL) values('%%s', '%%s', '%%s', '%%s')" % (SOUNDS_TMP_TBL)
+    INSERT_STATS = "insert into %s(birdID, match_time, confidence, offset) values(%%s, %%s, %%s, %%s)" % (STATS_TBL)
 
     #selects
     SELECT = "SELECT birdID, start_time FROM %s WHERE hash = UNHEX(%%s);" % (FINGERPRINTS_TBL)
@@ -322,6 +324,23 @@ class MySQLDatabases:
             self.connection.rollback()
             self.logging.write_log('databases', 'e', ("{update_fingerprinted_songs()} Query Error: %d: %s SQL: %s" %
                                                       (e.args[0], e.args[1], self.UPDATE_SONG_FINGERPRINTED)))
+
+    def insert_stats(self, birdID, match_time, confidence, offset):
+        """
+            store match stats...later used for ML
+        """
+        sql = MySQLDatabases.INSERT_STATS % (birdID, match_time, confidence, offset)
+        print sql
+
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.logging.write_log('databases', 'i', "new stats: confidence: %s" % str(confidence))
+        except mysql.Error, e:
+            self.connection.rollback()
+            self.logging.write_log('databases', 'e', ("{insert_stats()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
 
     def insert_tmp_sounds(self, birdID, soundType, wavFile, soundURL):
         """
