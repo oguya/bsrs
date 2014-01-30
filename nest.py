@@ -7,6 +7,7 @@ from multiprocessing import  Process, current_process
 from random import shuffle
 import os
 import glob
+import numpy as np
 
 from fingerprinter import Fingerprinter
 from Logging import Logging
@@ -15,6 +16,7 @@ from Parsers import Parsers
 from Config import Configs
 from databases import MySQLDatabases
 from recognizer import Recognizer
+from stats import stats
 
 
 class Nest:
@@ -139,7 +141,12 @@ if __name__ == '__main__':
     #nest.mp3_to_wav(Nest.SOUNDS_DIR)
     #nest.fingerprint_sounds()
     recognizer = Recognizer()
-    bird = recognizer.recognize_file(filename="BirdSounds/wavSounds/Clarke's_Weaver_602.wav")
+    #bird = recognizer.recognize_file(filename="BirdSounds/wavSounds/Clarke's_Weaver_602.wav")
+    bird = recognizer.recognize_file(filename="BirdSounds/testing/Blue-spotted_noise.wav")
     #bird = recognizer.recognize_file(filename="341.wav")
     #bird = recognizer.listen(seconds=10, verbose=True)
     print "bird details: ", bird
+
+    stats = stats()
+    stats.stereo_noise()
+

@@ -2,15 +2,18 @@ __author__ = 'james'
 
 import sys
 import wave
-import math
+from math import sin, pi
 import struct
 import random
+import numpy as np
 from itertools import *
 
 class stats:
     """
         collect stats .. used for unit testing
     """
+    DEFAULT_FS = 44100
+
 
     def __init__(self):
         """
@@ -51,3 +54,27 @@ class stats:
         w.close()
 
         return filename
+
+    def noise(self):
+        noise = np.random.randn((44100))
+        self.write_wavefile(filename="noise.wav", samples=noise)
+        #write_wavefile(self, filename, samples, nframes=None, nchannels=2, sampwidth=2, framerate=44100, bufsize=2048):
+
+    def stereo_noise(self, filename='BirdSounds/testing/white_noise_stereo.wav', duration=60):
+        """
+            generate stereo(2 channels) noise
+        """
+        noise = wave.open(filename, 'w')
+        noise.setparams((2, 2, stats.DEFAULT_FS, 0, 'NONE', 'not compressed'))
+        #max amplitude
+        maxVol = 2**15 - 1.0
+        noise_data = ''
+
+        for i in range(0, stats.DEFAULT_FS*duration):
+            #left channel
+            noise_data += struct.pack('h', int(np.random.randn()*256))
+            #right channel
+            noise_data += struct.pack('h', int(np.random.randn()*256))
+
+        noise.writeframes(noise_data)
+        noise.close()

@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2f4c435b-877b-4d8f-b7a9-3a03d9ceb74d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/stats.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/databases.py" afterPath="$PROJECT_DIR$/databases.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fingerprinter.py" afterPath="$PROJECT_DIR$/fingerprinter.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nest.py" afterPath="$PROJECT_DIR$/nest.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stats.py" afterPath="$PROJECT_DIR$/stats.py" />
     </list>
     <ignored path="audiopy.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -18,7 +15,7 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/audiopy$audiopy.coverage" NAME="audiopy Coverage Results" MODIFIED="1391079867375" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/audiopy$audiopy.coverage" NAME="audiopy Coverage Results" MODIFIED="1391090183180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -32,10 +29,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="fingerprinter.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="fingerprinter.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fingerprinter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="206" column="20" selection-start="6861" selection-end="6861" vertical-scroll-proportion="-0.9310345" vertical-offset="4194" max-vertical-offset="4986">
+            <state line="60" column="11" selection-start="1581" selection-end="1581" vertical-scroll-proportion="0.0" vertical-offset="1052" max-vertical-offset="4986">
               <folding />
             </state>
           </provider>
@@ -68,10 +65,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="nest.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="nest.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/nest.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="144" column="32" selection-start="5134" selection-end="5134" vertical-scroll-proportion="0.0" vertical-offset="1643" max-vertical-offset="2448">
+            <state line="144" column="84" selection-start="5116" selection-end="5116" vertical-scroll-proportion="1.6549708" vertical-offset="2021" max-vertical-offset="2556">
               <folding />
             </state>
           </provider>
@@ -80,7 +77,7 @@
       <file leaf-file-name="stats.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stats.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="0" selection-start="481" selection-end="481" vertical-scroll-proportion="0.0" vertical-offset="252" max-vertical-offset="1062">
+            <state line="61" column="0" selection-start="1831" selection-end="1831" vertical-scroll-proportion="0.0" vertical-offset="972" max-vertical-offset="1548">
               <folding>
                 <element signature="e#22#32#0" expanded="true" />
               </folding>
@@ -91,7 +88,7 @@
       <file leaf-file-name="Parsers.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Parsers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="25" selection-start="1927" selection-end="1927" vertical-scroll-proportion="0.0" vertical-offset="1152" max-vertical-offset="3870">
+            <state line="64" column="25" selection-start="1927" selection-end="1927" vertical-scroll-proportion="0.0" vertical-offset="1368" max-vertical-offset="3708">
               <folding />
             </state>
           </provider>
@@ -135,8 +132,8 @@
         <option value="$PROJECT_DIR$/recognizer.py" />
         <option value="$PROJECT_DIR$/fingerprinter.py" />
         <option value="$PROJECT_DIR$/databases.py" />
-        <option value="$PROJECT_DIR$/nest.py" />
         <option value="$PROJECT_DIR$/stats.py" />
+        <option value="$PROJECT_DIR$/nest.py" />
       </list>
     </option>
   </component>
@@ -458,8 +455,8 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1" y="26" width="1368" height="717" extended-state="7" />
-    <editor active="true" />
+    <frame x="-1" y="26" width="1368" height="717" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41666666" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32624114" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -471,7 +468,7 @@
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3985765" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.6453901" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.6453901" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291815" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -542,13 +539,6 @@
         <state line="1610" column="6" selection-start="54910" selection-end="54910" vertical-scroll-proportion="0.33202356" vertical-offset="28811" max-vertical-offset="91296" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Parsers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="25" selection-start="1927" selection-end="1927" vertical-scroll-proportion="0.0" vertical-offset="810" max-vertical-offset="3708">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="24" column="28" selection-start="532" selection-end="532" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="864" />
@@ -578,29 +568,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/recognizer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="8" selection-start="437" selection-end="437" vertical-scroll-proportion="0.0" vertical-offset="527" max-vertical-offset="1332">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nest.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="144" column="32" selection-start="5134" selection-end="5134" vertical-scroll-proportion="0.0" vertical-offset="1643" max-vertical-offset="2448">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stats.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="481" selection-end="481" vertical-scroll-proportion="0.0" vertical-offset="252" max-vertical-offset="1062">
-          <folding>
-            <element signature="e#22#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/databases.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="325" column="6" selection-start="13028" selection-end="13028" vertical-scroll-proportion="0.0" vertical-offset="5922" max-vertical-offset="6930">
@@ -608,9 +575,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/recognizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="8" selection-start="437" selection-end="437" vertical-scroll-proportion="0.0" vertical-offset="527" max-vertical-offset="1332">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Parsers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="64" column="25" selection-start="1927" selection-end="1927" vertical-scroll-proportion="0.0" vertical-offset="810" max-vertical-offset="3708">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/fingerprinter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="206" column="20" selection-start="6861" selection-end="6861" vertical-scroll-proportion="-0.9310345" vertical-offset="4194" max-vertical-offset="4986">
+        <state line="60" column="11" selection-start="1581" selection-end="1581" vertical-scroll-proportion="0.0" vertical-offset="900" max-vertical-offset="4986">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="61" column="0" selection-start="1831" selection-end="1831" vertical-scroll-proportion="0.0" vertical-offset="972" max-vertical-offset="1548">
+          <folding>
+            <element signature="e#22#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="144" column="84" selection-start="5116" selection-end="5116" vertical-scroll-proportion="1.6549708" vertical-offset="2021" max-vertical-offset="2556">
           <folding />
         </state>
       </provider>
