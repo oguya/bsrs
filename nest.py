@@ -3,7 +3,7 @@ __author__ = 'james'
 from pydub import AudioSegment
 from time import time
 from threading import Thread
-from multiprocessing import  Process, current_process
+from multiprocessing import Process, current_process
 from random import shuffle
 import os
 import glob
@@ -17,10 +17,10 @@ from Config import Configs
 from databases import MySQLDatabases
 from recognizer import Recognizer
 from stats import stats
+import optparse
 
 
 class Nest:
-
     """
         - convert all mp3 sounds to wav sounds -> store in wavs folder
         - go to db get birdID & wavFile & fingerprint the wavfile
@@ -37,6 +37,7 @@ class Nest:
         self.fetcher = Fetcher()
         self.parser = Parsers()
         creds = Configs().get_db_creds()
+        self.recognizer = Recognizer()
         self.database = self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
                                                        password=creds['passwd'], database=creds['db_name'])
 
@@ -45,7 +46,7 @@ class Nest:
         logs = ""
         for extension in extension_list:
             for media_file in glob.glob(extension):
-                wav_file = "../"+Nest.WAV_SOUNDS_DIR + os.path.splitext(os.path.basename(media_file))[0] + '.wav'
+                wav_file = "../" + Nest.WAV_SOUNDS_DIR + os.path.splitext(os.path.basename(media_file))[0] + '.wav'
                 logs += "converting %s to %s\n" % (os.path.basename(media_file), wav_file)
                 AudioSegment.from_file(media_file).export(wav_file, format='wav')
         os.chdir('../')
@@ -134,19 +135,71 @@ class Nest:
             #update song as fingerprinted
             self.database.update_fingerprinted_songs(birdID=birdID)
 
+    def process_requests(self, request_id):
+        """
+            get wavfile from inbound request, match &
+        """
+        cursor = self.database.get_inbound_request(request_id)
+        wavfile = "%s%s" % (Configs().get_uploads_dir(), cursor['wavFile'])
+        status = cursor['status']
+        request_id = cursor['requestID']
+
+        bird_details = self.recognizer.recognize_file(filename=wavfile, verbose=False)
+        self.database.update_processed_requests(request_id)
+
+        match_result = 0 if bird_details['bird_id'] == 0 else 1
+        outbound_id = self.database.insert_outbound_match(request_id=request_id, birdID=bird_details['bird_id'],
+                                                          matchResults=match_result)
+        print "outboundID: %s" % outbound_id
+
+
+def main():
+    """
+        check for args, run fingerprinter
+    """
+    p = optparse.OptionParser()
+    p.add_option('--requestid', '-r', dest='requestid')
+
+    options, args = p.parse_args()
+
+    if options.requestid:
+        Nest().process_requests(request_id=options.requestid)
+    else:
+        print "No args. Exiting..."
+        show_help()
+
+
+def show_help():
+    """
+        cmd usage
+    """
+    help_msg = "\nusage: python nest.py -r requestid\n" \
+               "example: python nest.py -r 5\n" \
+               "python nest.py -r 5\n"
+    print help_msg
+
 
 if __name__ == '__main__':
-    nest = Nest()
+    main()
+    # nest = Nest()
     #nest.control_center()
     #nest.mp3_to_wav(Nest.SOUNDS_DIR)
-    #nest.fingerprint_sounds()
-    recognizer = Recognizer()
-    #bird = recognizer.recognize_file(filename="BirdSounds/wavSounds/Clarke's_Weaver_602.wav")
-    bird = recognizer.recognize_file(filename="BirdSounds/testing/Blue-spotted_noise.wav")
-    #bird = recognizer.recognize_file(filename="341.wav")
-    #bird = recognizer.listen(seconds=10, verbose=True)
-    print "bird details: ", bird
 
-    stats = stats()
-    stats.stereo_noise()
+    # try:
+    #     nest.fingerprint_sounds()
+    # except Exception, ex:
+    #     logs = "error in fingerprint_sounds() ", ex.message
+    #     nest.logger.write_log(log_file='fingerprint', log_tag='e', log_msg=logs)
+
+    #recognizer = Recognizer()
+    #bird = recognizer.recognize_file(filename="BirdSounds/testing/white_noise_stereo.wav")
+    #bird = recognizer.recognize_file(filename="BirdSounds/testing/Grey_olive_noise.wav")
+    #bird = recognizer.recognize_file(filename="BirdSounds/testing/Olive_Sunbird_546.wav")
+    #bird = recognizer.recognize_file(filename="BirdSounds/testing/African_Barred_Owlet_83.wav")
+    #bird = recognizer.recognize_file(filename="BirdSounds/wavSounds/Clarke's_Weaver_602.wav")
+    #bird = recognizer.listen(seconds=10, verbose=True)
+    #print "bird details: ", bird
+
+    #stats = stats()
+    #stats.stereo_noise()
 

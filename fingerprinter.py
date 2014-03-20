@@ -229,16 +229,17 @@ class Fingerprinter(object):
         bird_name = bird_name.replace("-", " ")
         elapsed = time.time() - starttime
 
-        #if largest < 0:
-        #    print "Unkown bird sound!"
-        #    bird_details = {
-        #        "bird_id": 0,
-        #        "bird_name": "unknown",
-        #        "song_name": "unknown",
-        #        "match_time": elapsed,
-        #        "confidence": "unkown"
-        #    }
-        #    return bird_details
+        if largest < 0:
+            print "Unkown bird sound!"
+            bird_details = {
+                "bird_id": 0,
+                "bird_name": "unknown",
+                "song_name": "unknown",
+                "match_time": elapsed,
+                "confidence": largest_count
+            }
+            self.database.insert_stats(birdID=bird_id, match_time=elapsed, confidence=largest_count, offset=largest)
+            return bird_details
 
         if verbose:
             print "Bird name is %s, birdID = %d. Recognized in %f seconds" % (bird_name, bird_id, elapsed)

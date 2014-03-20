@@ -8,7 +8,6 @@ from MySQLdb import escape_string as clean
 
 
 class MySQLDatabases:
-
     #TODO add sql queries descriptions
     """
         Queries:
@@ -28,6 +27,8 @@ class MySQLDatabases:
     SOUNDS_TBL = "sounds"
     SOUNDS_TMP_TBL = "tmp_sounds"
     STATS_TBL = "stats"
+    INBOUND_REQ_TBL = "inbound_requests"
+    OUTBOUND_MATCHES_TBL = "outbound_matches"
 
     #tbl field names
     FIELD_BIRDNAME = "englishName"
@@ -40,10 +41,13 @@ class MySQLDatabases:
     INSERT_IMAGES = " INSERT INTO %s(birdID, imageURL, siteURL) VALUES ('%%s', '%%s','%%s')" % (IMAGES_TBL)
     INSERT_SOUNDS = "INSERT INTO %s(birdID, soundType, wavFile, soundURL) values" \
                     "('%%s','%%s','%%s', '%%s')" % (SOUNDS_TBL)
-    INSERT_BIRDS = "INSERT INTO %s(englishName, genericName, specificName, Recorder, Location, Country, lat_lng, xenoCantoURL) "\
+    INSERT_BIRDS = "INSERT INTO %s(englishName, genericName, specificName, Recorder, Location, Country, lat_lng, xenoCantoURL) " \
                    "values('%%s', '%%s', '%%s', '%%s', '%%s', '%%s', '%%s', '%%s')" % (BIRDS_TBL)
-    INSERT_TMP_SOUNDS = "INSERT INTO %s(birdID, wavFile, soundType, soundURL) values('%%s', '%%s', '%%s', '%%s')" % (SOUNDS_TMP_TBL)
+    INSERT_TMP_SOUNDS = "INSERT INTO %s(birdID, wavFile, soundType, soundURL) values('%%s', '%%s', '%%s', '%%s')" % (
+        SOUNDS_TMP_TBL)
     INSERT_STATS = "insert into %s(birdID, match_time, confidence, offset) values(%%s, %%s, %%s, %%s)" % (STATS_TBL)
+    INSERT_OUTBOUND_MATCH = "INSERT INTO %s (requestID, birdID, matchResults) values(%%s, %%s, %%s)" % (
+        OUTBOUND_MATCHES_TBL)
 
     #selects
     SELECT = "SELECT birdID, start_time FROM %s WHERE hash = UNHEX(%%s);" % (FINGERPRINTS_TBL)
@@ -60,8 +64,11 @@ class MySQLDatabases:
     SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds ORDER BY 1 DESC"
     #SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds WHERE birdID< '322' ORDER BY 1 DESC"
 
+    SELECT_INBOUND_REQUEST = "SELECT requestID, wavFile,status FROM %s WHERE requestID = '%%s'" % (INBOUND_REQ_TBL)
+
     # update
     UPDATE_SONG_FINGERPRINTED = "UPDATE %s SET fingerprinted=1 where birdID = '%%s'" % (SOUNDS_TBL)
+    UPDATE_MATCHED_REQUESTS = "UPDATE %s set status = 1 WHERE requestID = %%s" % (INBOUND_REQ_TBL)
 
     # delete
     DELETE_UNFINGERPRINTED = ""
@@ -330,7 +337,6 @@ class MySQLDatabases:
             store match stats...later used for ML
         """
         sql = MySQLDatabases.INSERT_STATS % (birdID, match_time, confidence, offset)
-        print sql
 
         try:
             self.cursor = self.connection.cursor()
@@ -341,6 +347,51 @@ class MySQLDatabases:
             self.connection.rollback()
             self.logging.write_log('databases', 'e', ("{insert_stats()} Query Error: %d: %s SQL: %s" %
                                                       (e.args[0], e.args[1], sql)))
+
+    def get_inbound_request(self, request_id):
+        """
+            get details on inbound request from db
+        """
+        sql = MySQLDatabases.SELECT_INBOUND_REQUEST % (request_id)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            return self.cursor.fetchone()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'f', ("{get_inbound_request()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+
+    def insert_outbound_match(self, request_id, birdID, matchResults):
+        """
+            add match details to db..return outboundID to webapi
+        """
+        sql = MySQLDatabases.INSERT_OUTBOUND_MATCH % (request_id, birdID, matchResults)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.logging.write_log('databases', 'i', "new match: request_id: %s birdID: %s matchResult %s"
+                                                     % (request_id, birdID, matchResults))
+            return self.cursor.lastrowid
+        except mysql.Error, e:
+            self.connection.rollback()
+            self.logging.write_log('databases', 'e', ("{insert_outbound_match()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+
+    def update_processed_requests(self, request_id):
+        """
+            update processed inbound requests
+        """
+        sql = MySQLDatabases.UPDATE_MATCHED_REQUESTS % (request_id)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.logging.write_log('databases', 'i', "finished matching request-> requestID: %s " % str(request_id))
+        except mysql.Error, e:
+            self.connection.rollback()
+            self.logging.write_log('databases', 'e', ("{update_processed_requests()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], self.UPDATE_MATCHED_REQUESTS)))
 
     def insert_tmp_sounds(self, birdID, soundType, wavFile, soundURL):
         """

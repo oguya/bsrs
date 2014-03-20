@@ -39,7 +39,8 @@ class Logging():
             print "Log dir %s doesn't exist. Creating it" % self.log_dir
             os.mkdir(self.log_dir, 0755)
         else:
-            print "log dir %s exists. proceed..." % self.log_dir
+            #print "log dir %s exists. proceed..." % self.log_dir
+            pass
 
     def write_log(self, log_file='fingerprint', log_tag='i', log_msg=None):
         """

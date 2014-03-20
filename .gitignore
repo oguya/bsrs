@@ -1,5 +1,19 @@
+#python compiled files
 *.pyc
-Logs/
-BirdSounds/
-*.tar
 
+#runtime logs
+Logs/
+
+#bird sound files
+BirdSounds/
+
+#compressed archives
+*.tar
+*.7z
+*.tar.gz
+
+#ide project files
+.idea/
+
+#wav files
+*.wav

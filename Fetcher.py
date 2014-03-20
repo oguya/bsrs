@@ -99,7 +99,7 @@ class Fetcher:
 
     def proxied_nets(self):
         use_proxy = self.config.getboolean('Proxies', 'use_http_proxy')
-        print 'proxy: ', use_proxy
+        #print 'proxy: ', use_proxy
         if use_proxy:
             proxy = url2.ProxyHandler({'http': self.encode_proxy_creds()})
             auth = url2.HTTPBasicAuthHandler()

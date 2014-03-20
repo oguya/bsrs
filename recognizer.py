@@ -16,10 +16,11 @@ class Recognizer(object):
     CHANNELS = 2
     RATE = 44100
 
-    def __init__(self):
+    def __init__(self, listen=False):
         self.fingerprinter = Fingerprinter()
         self.logging = Logging()
-        self.audio = pyaudio.PyAudio()
+        if listen:
+            self.audio = pyaudio.PyAudio()
 
     def recognize_file(self, filename, verbose=True):
         """

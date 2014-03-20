@@ -41,3 +41,9 @@ class Configs:
         db_name = self.config.get('database', 'db_dbname')
         return {'hostname': hostname, 'username': username,
                 'passwd': passwd, 'db_name': db_name}
+
+    def get_uploads_dir(self):
+        """
+            get wavfile upload dir
+        """
+        return self.config.get('Recognizer', 'wavfile_uploads_dir')
