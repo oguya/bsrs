@@ -31,12 +31,17 @@ class Nest:
     WAV_SOUNDS_DIR = 'BirdSounds/wavSounds/'
     MAX_PROCS = 10
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        if kwargs.get('cd'):
+            print os.getcwd()
+            os.chdir('../')
+
         self.fingerprinter = Fingerprinter()
         self.logger = Logging()
         self.fetcher = Fetcher()
         self.parser = Parsers()
-        creds = Configs().get_db_creds()
+        self.config = Configs()
+        creds = self.config.get_db_creds()
         self.recognizer = Recognizer()
         self.database = self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
                                                        password=creds['passwd'], database=creds['db_name'])
@@ -52,6 +57,13 @@ class Nest:
         os.chdir('../')
         print logs
         self.logger.write_log(log_file='fingerprint', log_tag='i', log_msg=logs)
+
+    def reload_creds(self):
+        self.database = None
+
+        creds = self.config.get_db_creds()
+        self.database = self.database = MySQLDatabases(hostname=creds['hostname'], username=creds['username'],
+                                                       password=creds['passwd'], database=creds['db_name'])
 
     def fetch_stuff(self):
         pass
@@ -140,9 +152,14 @@ class Nest:
             get wavfile from inbound request, match &
         """
         cursor = self.database.get_inbound_request(request_id)
-        wavfile = "%s%s" % (Configs().get_uploads_dir(), cursor['wavFile'])
-        status = cursor['status']
-        request_id = cursor['requestID']
+        if cursor is None:
+            print "cursor is None!"
+            self.reload_creds()
+            cursor = self.database.get_inbound_request(request_id)
+        else:
+            print "cursor is not None!"
+
+        wavfile = cursor['wavFile']
 
         bird_details = self.recognizer.recognize_file(filename=wavfile, verbose=False)
         self.database.update_processed_requests(request_id)
@@ -150,7 +167,62 @@ class Nest:
         match_result = 0 if bird_details['bird_id'] == 0 else 1
         outbound_id = self.database.insert_outbound_match(request_id=request_id, birdID=bird_details['bird_id'],
                                                           matchResults=match_result)
-        print "outboundID: %s" % outbound_id
+        # print "outboundID: %s" % outbound_id
+        return outbound_id
+
+    def get_outbound_birdID(self, outboundID):
+        """
+            return outboundId from outbound_matches tbl
+        """
+        cursor = self.database.get_outbound_bird_id(outboundID)
+        return cursor['birdID']
+
+    def get_match_results(self, outboundID):
+        """
+            return matchResults from outbound_matches tbl
+        """
+        cursor = self.database.get_match_results(outboundID)
+        return cursor['matchResults']
+
+    def add_request(self, wavfile, deviceID):
+        """
+            add new unmatched request in db
+        """
+        request_id = self.database.insert_inbound_request(wavfile, deviceID)
+        return request_id
+
+    def get_bird_details(self, birdID):
+        """
+            get bird details from db
+        """
+        cursor = self.database.get_bird_by_id(birdID)
+        return cursor
+
+    def get_sound_details(self, birdID):
+        """
+            get sounds from db for a given birdID
+            birdID, soundType, wavFile, soundURL
+        """
+        cursor = self.database.get_sound_by_id(birdID)
+        return {"soundType": cursor['soundType'], "soundURL": cursor['soundURL']}
+
+    def get_thumbnail_pic(self, birdID):
+        """
+            get thumbnail img from db for a given birdID
+        """
+        cursor = self.database.get_thumbnail_pic(birdID)
+        return cursor['imageURL']
+
+    def get_images(self, birdID):
+        """
+            return a list of images from db for a given birdID
+        """
+        cursors = self.database.get_images(birdID)
+        pics = []
+        for cursor in cursors:
+            img = {"imageURL": cursor['imageURL'], "siteURL": cursor['siteURL']}
+            pics.append(img)
+        return pics
 
 
 def main():

@@ -17,3 +17,6 @@ BirdSounds/
 
 #wav files
 *.wav
+
+#wavfile uploads dir
+wavFileUploads/

@@ -48,6 +48,7 @@ class MySQLDatabases:
     INSERT_STATS = "insert into %s(birdID, match_time, confidence, offset) values(%%s, %%s, %%s, %%s)" % (STATS_TBL)
     INSERT_OUTBOUND_MATCH = "INSERT INTO %s (requestID, birdID, matchResults) values(%%s, %%s, %%s)" % (
         OUTBOUND_MATCHES_TBL)
+    INSERT_INBOUND_REQUEST = "INSERT INTO %s (wavFile, deviceID) VALUES ('%%s', '%%s')" % (INBOUND_REQ_TBL)
 
     #selects
     SELECT = "SELECT birdID, start_time FROM %s WHERE hash = UNHEX(%%s);" % (FINGERPRINTS_TBL)
@@ -64,7 +65,11 @@ class MySQLDatabases:
     SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds ORDER BY 1 DESC"
     #SELECT_TMP_SOUNDS = "SELECT birdID, wavFile, soundType, soundURL FROM tmp_sounds WHERE birdID< '322' ORDER BY 1 DESC"
 
-    SELECT_INBOUND_REQUEST = "SELECT requestID, wavFile,status FROM %s WHERE requestID = '%%s'" % (INBOUND_REQ_TBL)
+    SELECT_INBOUND_REQUEST = "SELECT wavFile FROM %s WHERE requestID = %%s" % (INBOUND_REQ_TBL)
+    SELECT_OUTBOUND_BIRD_ID = "SELECT birdID  FROM %s WHERE outboundID = %%s" % (OUTBOUND_MATCHES_TBL)
+    SELECT_MATCH_RESULTS = "SELECT matchResults FROM %s WHERE outboundID = %%s" % (OUTBOUND_MATCHES_TBL)
+    SELECT_THUMBNAIL_PIC = "SELECT imageURL FROM %s WHERE birdID = %%s limit 1" % (IMAGES_TBL)
+    SELECT_IMAGES = "SELECT imageURL, siteURL FROM %s WHERE birdID = %%s" % (IMAGES_TBL)
 
     # update
     UPDATE_SONG_FINGERPRINTED = "UPDATE %s SET fingerprinted=1 where birdID = '%%s'" % (SOUNDS_TBL)
@@ -348,11 +353,31 @@ class MySQLDatabases:
             self.logging.write_log('databases', 'e', ("{insert_stats()} Query Error: %d: %s SQL: %s" %
                                                       (e.args[0], e.args[1], sql)))
 
+    def insert_inbound_request(self, wavfile, deviceID=None):
+        """
+            add unmatched wavfile in db
+        """
+        sql = MySQLDatabases.INSERT_INBOUND_REQUEST % (clean(wavfile), clean(deviceID))
+
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.logging.write_log('databases', 'i', 'adding new inbound request. wavfile: %s deviceID: %s ' %
+                                                     (wavfile, deviceID))
+            return int(self.cursor.lastrowid)
+        except mysql.Error, e:
+            self.connection.rollback()
+            self.logging.write_log('databases', 'f', ("{insert_inbound_request()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+            return -1
+
     def get_inbound_request(self, request_id):
         """
             get details on inbound request from db
         """
         sql = MySQLDatabases.SELECT_INBOUND_REQUEST % (request_id)
+        print "SQL: ", sql
         try:
             self.cursor = self.connection.cursor()
             self.cursor.execute(sql)
@@ -360,6 +385,33 @@ class MySQLDatabases:
         except mysql.Error, e:
             self.logging.write_log('databases', 'f', ("{get_inbound_request()} Query Error: %d: %s SQL: %s" %
                                                       (e.args[0], e.args[1], sql)))
+
+    def get_outbound_bird_id(self, outboundID):
+        """
+            get birdID from outbound_matches tbl
+        """
+        sql = MySQLDatabases.SELECT_OUTBOUND_BIRD_ID % (outboundID)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            return self.cursor.fetchone()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'f', ("{get_outbound_birdID()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+
+    def get_match_results(self, outboundID):
+        """
+            get matchResults from outbound_matches tbl
+        """
+        sql = MySQLDatabases.SELECT_MATCH_RESULTS % (outboundID)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            return self.cursor.fetchone()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'f', ("{get_outbound_birdID()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+            return None
 
     def insert_outbound_match(self, request_id, birdID, matchResults):
         """
@@ -410,6 +462,34 @@ class MySQLDatabases:
             self.logging.write_log('databases', 'e', ("{insert_tmp_sounds()} Query Error: %d: %s SQL: %s" %
                                                       (e.args[0], e.args[1], sql)))
             return False
+
+    def get_images(self, birdID):
+        """
+            get all images for a birdID
+        """
+        sql = MySQLDatabases.SELECT_IMAGES % (birdID)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            return self.cursor.fetchall()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'f', ("{get_images()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+            return None
+
+    def get_thumbnail_pic(self, birdID):
+        """
+            get 1 pic from images tbl for a birdID
+        """
+        sql = MySQLDatabases.SELECT_THUMBNAIL_PIC % (birdID)
+        try:
+            self.cursor = self.connection.cursor()
+            self.cursor.execute(sql)
+            return self.cursor.fetchone()
+        except mysql.Error, e:
+            self.logging.write_log('databases', 'f', ("{get_thumbnail_pic()} Query Error: %d: %s SQL: %s" %
+                                                      (e.args[0], e.args[1], sql)))
+            return None
 
     def get_no_tmp_sounds(self):
         """
